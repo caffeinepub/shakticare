@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 1rem;
+
+    /* ShaktiCare Pink Rose Palette — OKLCH L C H */
+    /* Background: warm blush pink */
+    --background: 0.965 0.018 10;
+    --foreground: 0.22 0.04 15;
+
+    /* Card: soft white-pink */
+    --card: 0.995 0.008 10;
+    --card-foreground: 0.22 0.04 15;
+
+    /* Popover */
+    --popover: 0.995 0.008 10;
+    --popover-foreground: 0.22 0.04 15;
+
+    /* Primary: deep rose */
+    --primary: 0.52 0.22 15;
+    --primary-foreground: 0.99 0.005 10;
+
+    /* Secondary: mauve pink */
+    --secondary: 0.92 0.05 355;
+    --secondary-foreground: 0.35 0.12 15;
+
+    /* Muted: light blush */
+    --muted: 0.95 0.025 355;
+    --muted-foreground: 0.5 0.08 15;
+
+    /* Accent: warm rose */
+    --accent: 0.88 0.065 350;
+    --accent-foreground: 0.35 0.12 15;
+
+    /* Destructive: red */
+    --destructive: 0.55 0.22 27;
+    --destructive-foreground: 0.99 0 0;
+
+    /* Border & Input */
+    --border: 0.88 0.04 355;
+    --input: 0.88 0.04 355;
+    --ring: 0.52 0.22 15;
+
+    /* Charts */
+    --chart-1: 0.62 0.22 15;
+    --chart-2: 0.72 0.18 355;
+    --chart-3: 0.65 0.15 340;
+    --chart-4: 0.55 0.12 20;
+    --chart-5: 0.75 0.1 30;
+
+    /* Sidebar */
+    --sidebar: 0.98 0.01 355;
+    --sidebar-foreground: 0.22 0.04 15;
+    --sidebar-primary: 0.52 0.22 15;
+    --sidebar-primary-foreground: 0.99 0.005 10;
+    --sidebar-accent: 0.92 0.05 355;
+    --sidebar-accent-foreground: 0.35 0.12 15;
+    --sidebar-border: 0.88 0.04 355;
+    --sidebar-ring: 0.52 0.22 15;
+
+    /* Custom ShaktiCare tokens */
+    --rose-deep: 0.48 0.24 15;
+    --rose-medium: 0.62 0.22 15;
+    --rose-light: 0.82 0.12 355;
+    --rose-blush: 0.94 0.04 355;
+    --mauve: 0.72 0.14 340;
+    --coral: 0.65 0.18 22;
+    --gold-accent: 0.78 0.14 75;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Outfit', 'Figtree', system-ui, sans-serif;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: oklch(var(--rose-blush));
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(var(--rose-light));
+  border-radius: 10px;
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.marquee-track {
+  animation: marquee 20s linear infinite;
+  white-space: nowrap;
+}
+
+/* SOS pulse animation */
+@keyframes sos-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.55 0.22 27 / 0.7); }
+  50% { box-shadow: 0 0 0 20px oklch(0.55 0.22 27 / 0); }
+}
+.sos-pulse {
+  animation: sos-pulse 2s infinite;
+}
+
+/* Floating voice button glow */
+@keyframes voice-glow {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.52 0.22 15 / 0.5); }
+  50% { box-shadow: 0 0 0 12px oklch(0.52 0.22 15 / 0); }
+}
+.voice-active-glow {
+  animation: voice-glow 1.5s infinite;
+}
+
+/* Bottom nav safe area */
+.bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
