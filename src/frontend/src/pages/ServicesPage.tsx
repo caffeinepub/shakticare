@@ -1,9 +1,30 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ExternalLink, MapPin, Phone } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ExternalLink, Loader2, MapPin, Phone, PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocalServices } from "../hooks/useQueries";
+import { toast } from "sonner";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import { useAddLocalService, useLocalServices } from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
 
 type ServiceFilter = "all" | "hospital" | "health_center" | "police";
@@ -75,31 +96,220 @@ function getServiceStyle(type: string) {
   };
 }
 
+const defaultFormState = {
+  name: "",
+  type: "hospital",
+  address: "",
+  phone: "",
+  district: "",
+};
+
 export function ServicesPage() {
   const [activeFilter, setActiveFilter] = useState<ServiceFilter>("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [form, setForm] = useState(defaultFormState);
+
   const { isActive, speak } = useVoiceAssistant();
+  const { identity } = useInternetIdentity();
+  const isLoggedIn = !!identity;
 
   const apiType = filters.find((f) => f.value === activeFilter)!.apiType;
   const { data: services, isLoading } = useLocalServices(apiType);
+  const addLocalService = useAddLocalService();
 
   useEffect(() => {
     if (isActive) {
       speak(
-        "Local Services page. You can find nearby hospitals, health centers, and police stations in Tamil Nadu. Each listing has a tap to call button.",
+        "Local Services page. You can find nearby hospitals, health centers, and police stations in Tamil Nadu. Each listing has a tap to call button. If you are logged in, you can also add new locations by tapping the Add Location button.",
       );
     }
   }, [isActive, speak]);
 
+  function handleFormChange(field: keyof typeof form, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim() || !form.address.trim() || !form.district.trim()) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    try {
+      await addLocalService.mutateAsync({
+        name: form.name.trim(),
+        type: form.type,
+        address: form.address.trim(),
+        phone: form.phone.trim(),
+        district: form.district.trim(),
+      });
+      toast.success(
+        "Location added successfully! It's now visible to all users.",
+      );
+      setForm(defaultFormState);
+      setDialogOpen(false);
+    } catch {
+      toast.error("Failed to add location. Please try again.");
+    }
+  }
+
   return (
     <div className="px-4 py-4 max-w-lg mx-auto space-y-5 animate-fade-in">
       {/* Header */}
-      <div className="text-center space-y-1">
-        <h2 className="font-display text-xl font-bold text-foreground">
-          Local Services
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Hospitals, health centres & police in Tamil Nadu
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h2 className="font-display text-xl font-bold text-foreground">
+            Local Services
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Hospitals, health centres & police in Tamil Nadu
+          </p>
+        </div>
+
+        {isLoggedIn && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                className="flex items-center gap-1.5 flex-shrink-0"
+                data-ocid="services.add_button"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Add Location
+              </Button>
+            </DialogTrigger>
+            <DialogContent
+              className="max-w-sm mx-4"
+              data-ocid="services.add_location.dialog"
+            >
+              <DialogHeader>
+                <DialogTitle className="font-display">
+                  Add New Location
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+                {/* Name */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="svc-name" className="text-sm font-medium">
+                    Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="svc-name"
+                    placeholder="e.g. Government General Hospital"
+                    value={form.name}
+                    onChange={(e) => handleFormChange("name", e.target.value)}
+                    data-ocid="services.add_name.input"
+                    required
+                  />
+                </div>
+
+                {/* Type */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="svc-type" className="text-sm font-medium">
+                    Type <span className="text-destructive">*</span>
+                  </Label>
+                  <Select
+                    value={form.type}
+                    onValueChange={(v) => handleFormChange("type", v)}
+                  >
+                    <SelectTrigger
+                      id="svc-type"
+                      data-ocid="services.add_type.select"
+                    >
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hospital">🏥 Hospital</SelectItem>
+                      <SelectItem value="health_center">
+                        🏨 Health Center
+                      </SelectItem>
+                      <SelectItem value="police">🚔 Police Station</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Address */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="svc-address" className="text-sm font-medium">
+                    Address <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="svc-address"
+                    placeholder="Full address of the location"
+                    value={form.address}
+                    onChange={(e) =>
+                      handleFormChange("address", e.target.value)
+                    }
+                    rows={2}
+                    data-ocid="services.add_address.textarea"
+                    required
+                  />
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="svc-phone" className="text-sm font-medium">
+                    Phone Number
+                  </Label>
+                  <Input
+                    id="svc-phone"
+                    type="tel"
+                    placeholder="e.g. 044-12345678"
+                    value={form.phone}
+                    onChange={(e) => handleFormChange("phone", e.target.value)}
+                    data-ocid="services.add_phone.input"
+                  />
+                </div>
+
+                {/* District */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="svc-district" className="text-sm font-medium">
+                    District <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="svc-district"
+                    placeholder="e.g. Chennai, Coimbatore"
+                    value={form.district}
+                    onChange={(e) =>
+                      handleFormChange("district", e.target.value)
+                    }
+                    data-ocid="services.add_district.input"
+                    required
+                  />
+                </div>
+
+                <DialogFooter className="gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setForm(defaultFormState);
+                      setDialogOpen(false);
+                    }}
+                    data-ocid="services.add_location.cancel_button"
+                    disabled={addLocalService.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    data-ocid="services.add_location.submit_button"
+                    disabled={addLocalService.isPending}
+                  >
+                    {addLocalService.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Adding…
+                      </>
+                    ) : (
+                      "Add Location"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Filter Tabs */}
@@ -122,9 +332,16 @@ export function ServicesPage() {
         ))}
       </div>
 
+      {/* Login hint for guest users */}
+      {!isLoggedIn && (
+        <p className="text-xs text-muted-foreground text-center bg-muted/40 rounded-xl px-3 py-2">
+          💡 Log in to add nearby hospitals, health centres, and police stations
+        </p>
+      )}
+
       {/* Services List */}
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-3" data-ocid="services.loading_state">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-28 w-full rounded-2xl" />
           ))}
@@ -205,7 +422,9 @@ export function ServicesPage() {
             No services found for this filter
           </p>
           <p className="text-xs text-muted-foreground">
-            Service data will be available after initialization
+            {isLoggedIn
+              ? "Tap 'Add Location' above to add a nearby hospital, health centre, or police station."
+              : "Service data will be available after initialization"}
           </p>
         </div>
       )}

@@ -23,7 +23,7 @@ import { ChevronDown, ChevronUp, Loader2, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
-import { useCreateDietEntry, useDietEntries } from "../hooks/useQueries";
+import { useAddDietEntry, useDietEntries } from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
 
 type DietCategory = "pregnancy" | "menstrual" | "general";
@@ -83,7 +83,7 @@ export function DietPage() {
   const { isActive, speak } = useVoiceAssistant();
 
   const { data: entries, isLoading } = useDietEntries(activeTab);
-  const createMutation = useCreateDietEntry();
+  const createMutation = useAddDietEntry();
 
   const activeCategory = categories.find((c) => c.value === activeTab)!;
 
@@ -170,6 +170,11 @@ export function DietPage() {
         </CardContent>
       </Card>
 
+      {/* Community note */}
+      <p className="text-xs text-muted-foreground text-center px-2">
+        👥 Community entries added by users are visible to everyone.
+      </p>
+
       {/* Add Entry Button */}
       {isLoggedIn && (
         <div className="flex justify-end">
@@ -226,6 +231,15 @@ export function DietPage() {
                             className="text-[10px] px-2 py-0 border-primary/30 text-primary"
                           >
                             ✓ Verified
+                          </Badge>
+                        )}
+                        {!entry.isPreloaded && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-2 py-0 border-rose-300 bg-rose-50 text-rose-700"
+                            data-ocid="diet.community_badge"
+                          >
+                            👥 Community
                           </Badge>
                         )}
                       </div>

@@ -10,7 +10,7 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface ShaktiCareContact {
+export interface ThozhiContact {
   'id' : bigint,
   'relation' : string,
   'userId' : Principal,
@@ -18,7 +18,7 @@ export interface ShaktiCareContact {
   'isDefault' : boolean,
   'phone' : string,
 }
-export interface ShaktiCareDietEntry {
+export interface ThozhiDietEntry {
   'id' : bigint,
   'title' : string,
   'createdBy' : [] | [Principal],
@@ -26,14 +26,14 @@ export interface ShaktiCareDietEntry {
   'isPreloaded' : boolean,
   'category' : string,
 }
-export interface ShaktiCareFirstAidEntry {
+export interface ThozhiFirstAidEntry {
   'id' : bigint,
   'createdBy' : [] | [Principal],
   'isPreloaded' : boolean,
   'steps' : Array<string>,
   'situation' : string,
 }
-export interface ShaktiCareLocalService {
+export interface ThozhiLocalService {
   'id' : bigint,
   'name' : string,
   'type' : string,
@@ -41,12 +41,12 @@ export interface ShaktiCareLocalService {
   'address' : string,
   'phone' : string,
 }
-export interface ShaktiCareUserProfile {
+export interface ThozhiUserProfile {
   'age' : bigint,
   'name' : string,
   'healthCondition' : string,
 }
-export interface ShaktiCareWorkoutEntry {
+export interface ThozhiWorkoutEntry {
   'id' : bigint,
   'title' : string,
   'duration' : string,
@@ -60,6 +60,11 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addContact' : ActorMethod<[string, string, string], bigint>,
+  'addDietEntry' : ActorMethod<[string, string, string], bigint>,
+  'addLocalService' : ActorMethod<
+    [string, string, string, string, string],
+    bigint
+  >,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createDietEntry' : ActorMethod<
     [string, string, string, boolean, [] | [Principal]],
@@ -77,23 +82,17 @@ export interface _SERVICE {
     [string, string, string, string, string],
     bigint
   >,
-  'getCallerUserProfile' : ActorMethod<[], [] | [ShaktiCareUserProfile]>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [ThozhiUserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getContacts' : ActorMethod<[], Array<ShaktiCareContact>>,
-  'getDietEntriesByCategory' : ActorMethod<
-    [string],
-    Array<ShaktiCareDietEntry>
-  >,
-  'getFirstAidEntries' : ActorMethod<[], Array<ShaktiCareFirstAidEntry>>,
-  'getServicesByType' : ActorMethod<[string], Array<ShaktiCareLocalService>>,
-  'getUserProfile' : ActorMethod<[Principal], [] | [ShaktiCareUserProfile]>,
-  'getWorkoutsByCategory' : ActorMethod<
-    [string],
-    Array<ShaktiCareWorkoutEntry>
-  >,
+  'getContacts' : ActorMethod<[], Array<ThozhiContact>>,
+  'getDietEntriesByCategory' : ActorMethod<[string], Array<ThozhiDietEntry>>,
+  'getFirstAidEntries' : ActorMethod<[], Array<ThozhiFirstAidEntry>>,
+  'getServicesByType' : ActorMethod<[string], Array<ThozhiLocalService>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [ThozhiUserProfile]>,
+  'getWorkoutsByCategory' : ActorMethod<[string], Array<ThozhiWorkoutEntry>>,
   'initialize' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  'saveCallerUserProfile' : ActorMethod<[ShaktiCareUserProfile], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[ThozhiUserProfile], undefined>,
   'updateUserProfile' : ActorMethod<[string, bigint, string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

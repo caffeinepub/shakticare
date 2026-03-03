@@ -13,12 +13,12 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const ShaktiCareUserProfile = IDL.Record({
+export const ThozhiUserProfile = IDL.Record({
   'age' : IDL.Nat,
   'name' : IDL.Text,
   'healthCondition' : IDL.Text,
 });
-export const ShaktiCareContact = IDL.Record({
+export const ThozhiContact = IDL.Record({
   'id' : IDL.Nat,
   'relation' : IDL.Text,
   'userId' : IDL.Principal,
@@ -26,7 +26,7 @@ export const ShaktiCareContact = IDL.Record({
   'isDefault' : IDL.Bool,
   'phone' : IDL.Text,
 });
-export const ShaktiCareDietEntry = IDL.Record({
+export const ThozhiDietEntry = IDL.Record({
   'id' : IDL.Nat,
   'title' : IDL.Text,
   'createdBy' : IDL.Opt(IDL.Principal),
@@ -34,14 +34,14 @@ export const ShaktiCareDietEntry = IDL.Record({
   'isPreloaded' : IDL.Bool,
   'category' : IDL.Text,
 });
-export const ShaktiCareFirstAidEntry = IDL.Record({
+export const ThozhiFirstAidEntry = IDL.Record({
   'id' : IDL.Nat,
   'createdBy' : IDL.Opt(IDL.Principal),
   'isPreloaded' : IDL.Bool,
   'steps' : IDL.Vec(IDL.Text),
   'situation' : IDL.Text,
 });
-export const ShaktiCareLocalService = IDL.Record({
+export const ThozhiLocalService = IDL.Record({
   'id' : IDL.Nat,
   'name' : IDL.Text,
   'type' : IDL.Text,
@@ -49,7 +49,7 @@ export const ShaktiCareLocalService = IDL.Record({
   'address' : IDL.Text,
   'phone' : IDL.Text,
 });
-export const ShaktiCareWorkoutEntry = IDL.Record({
+export const ThozhiWorkoutEntry = IDL.Record({
   'id' : IDL.Nat,
   'title' : IDL.Text,
   'duration' : IDL.Text,
@@ -61,6 +61,12 @@ export const ShaktiCareWorkoutEntry = IDL.Record({
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addContact' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Nat], []),
+  'addDietEntry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Nat], []),
+  'addLocalService' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [IDL.Nat],
+      [],
+    ),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createDietEntry' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Bool, IDL.Opt(IDL.Principal)],
@@ -84,39 +90,39 @@ export const idlService = IDL.Service({
     ),
   'getCallerUserProfile' : IDL.Func(
       [],
-      [IDL.Opt(ShaktiCareUserProfile)],
+      [IDL.Opt(ThozhiUserProfile)],
       ['query'],
     ),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-  'getContacts' : IDL.Func([], [IDL.Vec(ShaktiCareContact)], ['query']),
+  'getContacts' : IDL.Func([], [IDL.Vec(ThozhiContact)], ['query']),
   'getDietEntriesByCategory' : IDL.Func(
       [IDL.Text],
-      [IDL.Vec(ShaktiCareDietEntry)],
+      [IDL.Vec(ThozhiDietEntry)],
       ['query'],
     ),
   'getFirstAidEntries' : IDL.Func(
       [],
-      [IDL.Vec(ShaktiCareFirstAidEntry)],
+      [IDL.Vec(ThozhiFirstAidEntry)],
       ['query'],
     ),
   'getServicesByType' : IDL.Func(
       [IDL.Text],
-      [IDL.Vec(ShaktiCareLocalService)],
+      [IDL.Vec(ThozhiLocalService)],
       ['query'],
     ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
-      [IDL.Opt(ShaktiCareUserProfile)],
+      [IDL.Opt(ThozhiUserProfile)],
       ['query'],
     ),
   'getWorkoutsByCategory' : IDL.Func(
       [IDL.Text],
-      [IDL.Vec(ShaktiCareWorkoutEntry)],
+      [IDL.Vec(ThozhiWorkoutEntry)],
       ['query'],
     ),
   'initialize' : IDL.Func([], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-  'saveCallerUserProfile' : IDL.Func([ShaktiCareUserProfile], [], []),
+  'saveCallerUserProfile' : IDL.Func([ThozhiUserProfile], [], []),
   'updateUserProfile' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [], []),
 });
 
@@ -128,12 +134,12 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const ShaktiCareUserProfile = IDL.Record({
+  const ThozhiUserProfile = IDL.Record({
     'age' : IDL.Nat,
     'name' : IDL.Text,
     'healthCondition' : IDL.Text,
   });
-  const ShaktiCareContact = IDL.Record({
+  const ThozhiContact = IDL.Record({
     'id' : IDL.Nat,
     'relation' : IDL.Text,
     'userId' : IDL.Principal,
@@ -141,7 +147,7 @@ export const idlFactory = ({ IDL }) => {
     'isDefault' : IDL.Bool,
     'phone' : IDL.Text,
   });
-  const ShaktiCareDietEntry = IDL.Record({
+  const ThozhiDietEntry = IDL.Record({
     'id' : IDL.Nat,
     'title' : IDL.Text,
     'createdBy' : IDL.Opt(IDL.Principal),
@@ -149,14 +155,14 @@ export const idlFactory = ({ IDL }) => {
     'isPreloaded' : IDL.Bool,
     'category' : IDL.Text,
   });
-  const ShaktiCareFirstAidEntry = IDL.Record({
+  const ThozhiFirstAidEntry = IDL.Record({
     'id' : IDL.Nat,
     'createdBy' : IDL.Opt(IDL.Principal),
     'isPreloaded' : IDL.Bool,
     'steps' : IDL.Vec(IDL.Text),
     'situation' : IDL.Text,
   });
-  const ShaktiCareLocalService = IDL.Record({
+  const ThozhiLocalService = IDL.Record({
     'id' : IDL.Nat,
     'name' : IDL.Text,
     'type' : IDL.Text,
@@ -164,7 +170,7 @@ export const idlFactory = ({ IDL }) => {
     'address' : IDL.Text,
     'phone' : IDL.Text,
   });
-  const ShaktiCareWorkoutEntry = IDL.Record({
+  const ThozhiWorkoutEntry = IDL.Record({
     'id' : IDL.Nat,
     'title' : IDL.Text,
     'duration' : IDL.Text,
@@ -176,6 +182,12 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addContact' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Nat], []),
+    'addDietEntry' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Nat], []),
+    'addLocalService' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Nat],
+        [],
+      ),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createDietEntry' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Bool, IDL.Opt(IDL.Principal)],
@@ -199,39 +211,39 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getCallerUserProfile' : IDL.Func(
         [],
-        [IDL.Opt(ShaktiCareUserProfile)],
+        [IDL.Opt(ThozhiUserProfile)],
         ['query'],
       ),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-    'getContacts' : IDL.Func([], [IDL.Vec(ShaktiCareContact)], ['query']),
+    'getContacts' : IDL.Func([], [IDL.Vec(ThozhiContact)], ['query']),
     'getDietEntriesByCategory' : IDL.Func(
         [IDL.Text],
-        [IDL.Vec(ShaktiCareDietEntry)],
+        [IDL.Vec(ThozhiDietEntry)],
         ['query'],
       ),
     'getFirstAidEntries' : IDL.Func(
         [],
-        [IDL.Vec(ShaktiCareFirstAidEntry)],
+        [IDL.Vec(ThozhiFirstAidEntry)],
         ['query'],
       ),
     'getServicesByType' : IDL.Func(
         [IDL.Text],
-        [IDL.Vec(ShaktiCareLocalService)],
+        [IDL.Vec(ThozhiLocalService)],
         ['query'],
       ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
-        [IDL.Opt(ShaktiCareUserProfile)],
+        [IDL.Opt(ThozhiUserProfile)],
         ['query'],
       ),
     'getWorkoutsByCategory' : IDL.Func(
         [IDL.Text],
-        [IDL.Vec(ShaktiCareWorkoutEntry)],
+        [IDL.Vec(ThozhiWorkoutEntry)],
         ['query'],
       ),
     'initialize' : IDL.Func([], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-    'saveCallerUserProfile' : IDL.Func([ShaktiCareUserProfile], [], []),
+    'saveCallerUserProfile' : IDL.Func([ThozhiUserProfile], [], []),
     'updateUserProfile' : IDL.Func([IDL.Text, IDL.Nat, IDL.Text], [], []),
   });
 };

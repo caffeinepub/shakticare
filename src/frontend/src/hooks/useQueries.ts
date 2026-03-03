@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
-  ShaktiCareContact,
-  ShaktiCareDietEntry,
-  ShaktiCareFirstAidEntry,
-  ShaktiCareLocalService,
-  ShaktiCareUserProfile,
-  ShaktiCareWorkoutEntry,
+  ThozhiContact,
+  ThozhiDietEntry,
+  ThozhiFirstAidEntry,
+  ThozhiLocalService,
+  ThozhiUserProfile,
+  ThozhiWorkoutEntry,
 } from "../backend.d";
 import { useActor } from "./useActor";
 
@@ -13,7 +13,7 @@ import { useActor } from "./useActor";
 
 export function useContacts() {
   const { actor, isFetching } = useActor();
-  return useQuery<ShaktiCareContact[]>({
+  return useQuery<ThozhiContact[]>({
     queryKey: ["contacts"],
     queryFn: async () => {
       if (!actor) return [];
@@ -49,7 +49,7 @@ export function useAddContact() {
 
 export function useDietEntries(category: string) {
   const { actor, isFetching } = useActor();
-  return useQuery<ShaktiCareDietEntry[]>({
+  return useQuery<ThozhiDietEntry[]>({
     queryKey: ["diet", category],
     queryFn: async () => {
       if (!actor) return [];
@@ -81,11 +81,33 @@ export function useCreateDietEntry() {
   });
 }
 
+export function useAddDietEntry() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      category,
+      title,
+      description,
+    }: {
+      category: string;
+      title: string;
+      description: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.addDietEntry(category, title, description);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["diet", variables.category] });
+    },
+  });
+}
+
 // ─── First Aid ────────────────────────────────────────────────────────────────
 
 export function useFirstAidEntries() {
   const { actor, isFetching } = useActor();
-  return useQuery<ShaktiCareFirstAidEntry[]>({
+  return useQuery<ThozhiFirstAidEntry[]>({
     queryKey: ["firstaid"],
     queryFn: async () => {
       if (!actor) return [];
@@ -119,7 +141,7 @@ export function useCreateFirstAidEntry() {
 
 export function useWorkouts(category: string) {
   const { actor, isFetching } = useActor();
-  return useQuery<ShaktiCareWorkoutEntry[]>({
+  return useQuery<ThozhiWorkoutEntry[]>({
     queryKey: ["workouts", category],
     queryFn: async () => {
       if (!actor) return [];
@@ -133,13 +155,51 @@ export function useWorkouts(category: string) {
 
 export function useLocalServices(type: string) {
   const { actor, isFetching } = useActor();
-  return useQuery<ShaktiCareLocalService[]>({
+  return useQuery<ThozhiLocalService[]>({
     queryKey: ["services", type],
     queryFn: async () => {
       if (!actor) return [];
+      if (type === "all") {
+        const [hospitals, healthCenters, police] = await Promise.all([
+          actor.getServicesByType("hospital"),
+          actor.getServicesByType("health_center"),
+          actor.getServicesByType("police"),
+        ]);
+        return [...hospitals, ...healthCenters, ...police].sort((a, b) =>
+          a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+        );
+      }
       return actor.getServicesByType(type);
     },
     enabled: !!actor && !isFetching,
+  });
+}
+
+export function useAddLocalService() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      name,
+      type,
+      address,
+      phone,
+      district,
+    }: {
+      name: string;
+      type: string;
+      address: string;
+      phone: string;
+      district: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.addLocalService(name, type, address, phone, district);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+      queryClient.invalidateQueries({ queryKey: ["services", variables.type] });
+      queryClient.invalidateQueries({ queryKey: ["services", "all"] });
+    },
   });
 }
 
@@ -147,7 +207,7 @@ export function useLocalServices(type: string) {
 
 export function useUserProfile() {
   const { actor, isFetching } = useActor();
-  return useQuery<ShaktiCareUserProfile | null>({
+  return useQuery<ThozhiUserProfile | null>({
     queryKey: ["profile"],
     queryFn: async () => {
       if (!actor) return null;
