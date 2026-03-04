@@ -20,6 +20,144 @@ import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useAddFirstAidEntry, useFirstAidEntries } from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
 
+// ─── Static preloaded first aid data ────────────────────────────────────────
+
+interface StaticFirstAidEntry {
+  id: string;
+  situation: string;
+  steps: string[];
+  isPreloaded: boolean;
+}
+
+const STATIC_FIRST_AID_ENTRIES: StaticFirstAidEntry[] = [
+  {
+    id: "static-1",
+    situation: "🔥 Fire Burns (Minor Burns)",
+    steps: [
+      "→ Cool the burn under running water for 10–15 minutes",
+      "→ Do NOT apply ice directly",
+      "→ Apply aloe vera gel or burn ointment",
+      "→ Cover with a clean, non-stick bandage",
+      "→ Avoid bursting blisters",
+      "→ Seek help if burn is large or severe",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-2",
+    situation: "✂️ Cuts & Minor Wounds",
+    steps: [
+      "→ Wash hands before touching the wound",
+      "→ Clean with clean water + mild antiseptic",
+      "→ Apply gentle pressure to stop bleeding",
+      "→ Apply antibiotic cream",
+      "→ Cover with a sterile bandage",
+      "→ Change dressing daily",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-3",
+    situation: "🤕 Slipped / Bruised Wounds (R.I.C.E Method)",
+    steps: [
+      "→ R – Rest the injured area",
+      "→ I – Ice pack for 10–15 minutes",
+      "→ C – Compression with bandage",
+      "→ E – Elevation (raise above heart level)",
+      "→ Avoid putting pressure on the injured area",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-4",
+    situation: "🦵 Knee Pain / Knee Cramps",
+    steps: [
+      "→ Rest your knee and avoid strain",
+      "→ Apply ice (for swelling) or heat (for stiffness)",
+      "→ Do gentle stretching",
+      "→ Keep knee slightly elevated",
+      "→ Use knee support if needed",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-5",
+    situation: "💢 Back Pain",
+    steps: [
+      "→ Take proper rest (avoid long bed rest)",
+      "→ Apply hot compress",
+      "→ Maintain correct posture while sitting",
+      "→ Do light stretches (like child's pose)",
+      "→ Avoid lifting heavy objects",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-6",
+    situation: "🤯 Headache",
+    steps: [
+      "→ Rest in a quiet, dark room",
+      "→ Drink plenty of water",
+      "→ Apply cold compress on forehead",
+      "→ Gentle head massage",
+      "→ Avoid screen time",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-7",
+    situation: "Neck Pain",
+    steps: [
+      "→ Avoid sudden movements",
+      "→ Apply warm compress",
+      "→ Do slow neck rotations / stretching",
+      "→ Maintain correct posture (no mobile bending)",
+      "→ Use a proper pillow",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-8",
+    situation: "💪 Shoulder Pain",
+    steps: [
+      "→ Rest the shoulder",
+      "→ Apply ice or heat",
+      "→ Do gentle arm rotations / stretching",
+      "→ Avoid lifting heavy weights",
+      "→ Light massage can help",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-9",
+    situation: "🦶 Muscle Cramps (General)",
+    steps: [
+      "→ Stretch the affected muscle gently",
+      "→ Massage the area",
+      "→ Drink water (stay hydrated)",
+      "→ Apply warm compress",
+      "→ Eat potassium-rich foods (banana)",
+    ],
+    isPreloaded: true,
+  },
+  {
+    id: "static-10",
+    situation: "⚠️ General First Aid Tips",
+    steps: [
+      "→ Always keep a first aid kit ready",
+      "→ Wash hands before treating wounds",
+      "→ Do not use dirty cloths on injuries",
+      "→ Seek medical help if pain is severe",
+      "→ Seek medical help if bleeding does not stop",
+      "→ Seek medical help if injury looks serious",
+      "→ Call emergency services (108) in life-threatening situations",
+    ],
+    isPreloaded: true,
+  },
+];
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
 const situationEmojis: Record<string, string> = {
   burn: "🔥",
   cut: "✂️",
@@ -41,6 +179,8 @@ function getSituationEmoji(situation: string): string {
   return situationEmojis.default;
 }
 
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export function FirstAidPage() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [addOpen, setAddOpen] = useState(false);
@@ -51,8 +191,24 @@ export function FirstAidPage() {
   const isLoggedIn = isLoginSuccess && !!identity;
   const { isActive, speak } = useVoiceAssistant();
 
-  const { data: entries, isLoading } = useFirstAidEntries();
+  const { data: backendEntries, isLoading } = useFirstAidEntries();
   const addMutation = useAddFirstAidEntry();
+
+  // Community entries from backend (non-preloaded ones added by users)
+  const communityEntries = (backendEntries ?? [])
+    .filter((e) => !e.isPreloaded)
+    .map((e) => ({
+      id: e.id.toString(),
+      situation: e.situation,
+      steps: e.steps,
+      isPreloaded: false,
+    }));
+
+  // Combine: static preloaded entries first, then community entries
+  const allEntries: StaticFirstAidEntry[] = [
+    ...STATIC_FIRST_AID_ENTRIES,
+    ...communityEntries,
+  ];
 
   useEffect(() => {
     if (isActive) {
@@ -149,10 +305,10 @@ export function FirstAidPage() {
             <Skeleton key={i} className="h-20 w-full rounded-2xl" />
           ))}
         </div>
-      ) : entries && entries.length > 0 ? (
+      ) : (
         <div className="space-y-3">
-          {entries.map((entry, index) => {
-            const id = entry.id.toString();
+          {allEntries.map((entry, index) => {
+            const id = entry.id;
             const isExpanded = expandedIds.has(id);
             const emoji = getSituationEmoji(entry.situation);
             return (
@@ -226,25 +382,6 @@ export function FirstAidPage() {
               </Card>
             );
           })}
-        </div>
-      ) : (
-        <div
-          className="text-center py-12 space-y-3"
-          data-ocid="firstaid.entries.empty_state"
-        >
-          <span className="text-4xl">🩹</span>
-          <p className="text-sm font-medium text-foreground">No entries yet</p>
-          {isLoggedIn && (
-            <Button
-              size="sm"
-              onClick={() => setAddOpen(true)}
-              variant="outline"
-              className="rounded-full"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add First Entry
-            </Button>
-          )}
         </div>
       )}
 
