@@ -9,9 +9,9 @@ import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   let emergencyContacts = Map.empty<Nat, ThozhiContact>();
   let dietEntries = Map.empty<Nat, ThozhiDietEntry>();

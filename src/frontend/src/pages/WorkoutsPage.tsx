@@ -60,6 +60,125 @@ const categories: {
   },
 ];
 
+// ─── Static Pregnancy Workout Entries ────────────────────────────────────────
+
+const STATIC_PREGNANCY_WORKOUTS = [
+  {
+    id: "static-p-1",
+    title: "🚶‍♀️ 1. Walking – Best & Safest Exercise",
+    duration: "15–30 minutes daily",
+    difficulty: "Easy",
+    description: [
+      "→ Walk at a comfortable pace",
+      "→ Improves blood circulation",
+      "→ Reduces swelling",
+      "→ Helps control weight",
+    ],
+  },
+  {
+    id: "static-p-2",
+    title: "🧘‍♀️ 2. Prenatal Yoga",
+    duration: "15–20 minutes",
+    difficulty: "Easy",
+    description: [
+      "→ Gentle stretches only",
+      "→ Reduces back pain",
+      "→ Improves flexibility",
+      "→ Helps relaxation",
+      "",
+      "Simple poses:",
+      "→ Cat–Cow stretch",
+      "→ Butterfly pose",
+      "→ Child's pose (with support)",
+    ],
+  },
+  {
+    id: "static-p-3",
+    title: "🧍 3. Pelvic Tilts – For Back Pain Relief",
+    duration: "10 repetitions",
+    difficulty: "Easy",
+    description: [
+      "→ Stand against a wall or on hands & knees",
+      "→ Strengthens lower back",
+      "→ Reduces pregnancy back pain",
+    ],
+  },
+  {
+    id: "static-p-4",
+    title: "💪 4. Kegel Exercises – Pelvic Floor Strength",
+    duration: "10–15 reps, 3 times daily",
+    difficulty: "Easy",
+    description: [
+      "→ Tighten pelvic muscles for 5 seconds, then relax",
+      "→ Helps during labor",
+      "→ Prevents urine leakage",
+    ],
+  },
+  {
+    id: "static-p-5",
+    title: "🪑 5. Seated Leg Raises",
+    duration: "10 times each leg",
+    difficulty: "Easy",
+    description: [
+      "→ Sit on a chair",
+      "→ Lift one leg slowly, hold for 5 seconds",
+      "→ 10 times each leg",
+      "→ Improves circulation",
+      "→ Strengthens thighs",
+    ],
+  },
+  {
+    id: "static-p-6",
+    title: "🧱 6. Wall Push-Ups",
+    duration: "10–15 repetitions",
+    difficulty: "Easy",
+    description: [
+      "→ Stand facing a wall",
+      "→ Do 10–15 slow push-ups",
+      "→ Strengthens arms and shoulders",
+      "→ Safe alternative to floor push-ups",
+    ],
+  },
+  {
+    id: "static-p-7",
+    title: "🌬 7. Deep Breathing Exercises",
+    duration: "5–10 minutes",
+    difficulty: "Easy",
+    description: [
+      "→ Sit comfortably",
+      "→ Inhale slowly through nose",
+      "→ Exhale slowly through mouth",
+      "→ Reduces stress",
+      "→ Helps in labor breathing",
+    ],
+  },
+  {
+    id: "static-p-8",
+    title: "🚫 Exercises to Avoid During Pregnancy",
+    duration: "Reference",
+    difficulty: "Beginner",
+    description: [
+      "→ Heavy weight lifting",
+      "→ Jumping exercises",
+      "→ Lying flat on back (after first trimester)",
+      "→ High-intensity workouts",
+      "→ Exercises that cause dizziness or pain",
+    ],
+  },
+  {
+    id: "static-p-9",
+    title: "💧 Safety Tips for Exercise",
+    duration: "Reference",
+    difficulty: "Beginner",
+    description: [
+      "→ Drink plenty of water",
+      "→ Wear comfortable clothes",
+      "→ Stop if feeling pain, dizziness, or bleeding",
+      "→ Exercise 3–5 days per week",
+    ],
+  },
+];
+
 const difficultyColor: Record<string, string> = {
   easy: "bg-green-100 text-green-800",
   beginner: "bg-green-100 text-green-800",
@@ -91,17 +210,15 @@ export function WorkoutsPage() {
 
   const activeCategory = categories.find((c) => c.value === activeTab)!;
 
-  const notes: ThozhiWorkoutNote[] =
-    activeTab === "general" ? (workoutNotes ?? []) : [];
+  const notes: ThozhiWorkoutNote[] = workoutNotes ?? [];
+
+  // For pregnancy tab, use static entries; for others, use backend entries
+  const isPregnancyTab = activeTab === "pregnancy";
 
   useEffect(() => {
     if (isActive) {
-      const generalNote =
-        activeTab === "general"
-          ? " On the General tab, you can add your own personal workout notes by tapping the Add Note button."
-          : "";
       speak(
-        `Workouts page. Showing ${activeTab.replace("_", " ")} exercises. These are safe and gentle exercises designed specifically for women.${generalNote}`,
+        `Workouts page. Showing ${activeTab.replace("_", " ")} exercises. These are safe and gentle exercises designed specifically for women. You can add your own workout notes by tapping the Add Note button when logged in.`,
       );
     }
   }, [isActive, speak, activeTab]);
@@ -126,9 +243,9 @@ export function WorkoutsPage() {
     }
   };
 
-  const hasContent =
-    (entries && entries.length > 0) ||
-    (activeTab === "general" && notes.length > 0);
+  const hasBackendContent = entries && entries.length > 0;
+  const hasStaticContent = isPregnancyTab;
+  const hasContent = hasStaticContent || hasBackendContent || notes.length > 0;
 
   return (
     <div className="px-4 py-4 max-w-lg mx-auto space-y-5 animate-fade-in">
@@ -177,6 +294,18 @@ export function WorkoutsPage() {
         </CardContent>
       </Card>
 
+      {/* Pregnancy section heading */}
+      {isPregnancyTab && (
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3">
+          <h3 className="font-semibold text-sm text-amber-900 text-center">
+            🌸 PREGNANCY WOMEN'S WORKOUT GUIDE
+          </h3>
+          <p className="text-xs text-amber-700 text-center mt-0.5">
+            Safe & gentle exercises for expecting mothers
+          </p>
+        </div>
+      )}
+
       {/* Safety Note */}
       <div className="bg-primary/5 border border-primary/15 rounded-xl p-3">
         <p className="text-xs text-primary font-medium text-center">
@@ -184,8 +313,8 @@ export function WorkoutsPage() {
         </p>
       </div>
 
-      {/* Add Note Button — General tab only, logged-in users */}
-      {activeTab === "general" && isLoggedIn && (
+      {/* Add Note Button — logged-in users on any tab */}
+      {isLoggedIn && (
         <div className="flex justify-end">
           <Button
             size="sm"
@@ -200,7 +329,7 @@ export function WorkoutsPage() {
       )}
 
       {/* Workout Cards */}
-      {isLoading ? (
+      {!isPregnancyTab && isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-28 w-full rounded-2xl" />
@@ -208,69 +337,120 @@ export function WorkoutsPage() {
         </div>
       ) : hasContent ? (
         <div className="space-y-3">
-          {/* Preloaded workout entries */}
-          {entries?.map((entry, index) => (
-            <Card
-              key={entry.id.toString()}
-              className="border-border shadow-sm hover:shadow-md transition-all"
-              data-ocid={`workouts.entry.item.${index + 1}`}
-            >
-              <CardHeader className="pb-2 pt-4">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-sm font-semibold text-foreground leading-tight flex-1">
-                    {entry.title}
-                  </CardTitle>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <Badge
-                      className={`text-[10px] px-2 py-0.5 ${getDifficultyColor(entry.difficulty)}`}
-                      variant="outline"
-                    >
-                      <Zap className="h-2.5 w-2.5 mr-0.5 inline" />
-                      {entry.difficulty}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pb-4 pt-0 space-y-2">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {entry.description}
-                </p>
-                <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
-                  <Clock className="h-3 w-3" />
-                  {entry.duration}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {/* Personal notes — General tab only */}
-          {activeTab === "general" &&
-            notes.map((note, index) => (
+          {/* Static pregnancy workout entries */}
+          {isPregnancyTab &&
+            STATIC_PREGNANCY_WORKOUTS.map((workout, index) => (
               <Card
-                key={note.id.toString()}
+                key={workout.id}
                 className="border-border shadow-sm hover:shadow-md transition-all"
-                data-ocid={`workouts.note.item.${index + 1}`}
+                data-ocid={`workouts.entry.item.${index + 1}`}
               >
                 <CardHeader className="pb-2 pt-4">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-sm font-semibold text-foreground leading-tight flex-1">
-                      {note.title}
+                      {workout.title}
                     </CardTitle>
-                    <Badge
-                      variant="outline"
-                      className="text-[10px] px-2 py-0.5 border-teal-300 bg-teal-50 text-teal-700 flex-shrink-0"
-                    >
-                      📝 My Note
-                    </Badge>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <Badge
+                        className={`text-[10px] px-2 py-0.5 ${getDifficultyColor(workout.difficulty)}`}
+                        variant="outline"
+                      >
+                        <Zap className="h-2.5 w-2.5 mr-0.5 inline" />
+                        {workout.difficulty}
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pb-4 pt-0">
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {note.description}
-                  </p>
+                <CardContent className="pb-4 pt-0 space-y-2">
+                  <div className="space-y-0.5">
+                    {workout.description.map((line, li) =>
+                      line === "" ? (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: static content
+                        <div key={li} className="h-1" />
+                      ) : (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: static content
+                        <p
+                          key={li}
+                          className="text-xs text-muted-foreground leading-relaxed"
+                        >
+                          {line}
+                        </p>
+                      ),
+                    )}
+                  </div>
+                  {workout.duration !== "Reference" && (
+                    <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                      <Clock className="h-3 w-3" />
+                      {workout.duration}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
+
+          {/* Backend workout entries (period_relief, general, or any future seeded entries) */}
+          {!isPregnancyTab &&
+            entries?.map((entry, index) => (
+              <Card
+                key={entry.id.toString()}
+                className="border-border shadow-sm hover:shadow-md transition-all"
+                data-ocid={`workouts.entry.item.${index + 1}`}
+              >
+                <CardHeader className="pb-2 pt-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-sm font-semibold text-foreground leading-tight flex-1">
+                      {entry.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <Badge
+                        className={`text-[10px] px-2 py-0.5 ${getDifficultyColor(entry.difficulty)}`}
+                        variant="outline"
+                      >
+                        <Zap className="h-2.5 w-2.5 mr-0.5 inline" />
+                        {entry.difficulty}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-4 pt-0 space-y-2">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {entry.description}
+                  </p>
+                  <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                    <Clock className="h-3 w-3" />
+                    {entry.duration}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+          {/* User-added notes — all tabs */}
+          {notes.map((note, index) => (
+            <Card
+              key={note.id.toString()}
+              className="border-border shadow-sm hover:shadow-md transition-all"
+              data-ocid={`workouts.note.item.${index + 1}`}
+            >
+              <CardHeader className="pb-2 pt-4">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-sm font-semibold text-foreground leading-tight flex-1">
+                    {note.title}
+                  </CardTitle>
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] px-2 py-0.5 border-teal-300 bg-teal-50 text-teal-700 flex-shrink-0"
+                  >
+                    📝 My Note
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pb-4 pt-0">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {note.description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       ) : (
         <div
@@ -282,8 +462,8 @@ export function WorkoutsPage() {
             No workouts loaded yet
           </p>
           <p className="text-xs text-muted-foreground">
-            {activeTab === "general"
-              ? "Workout data will be available after initialization. You can also add your own notes above."
+            {isLoggedIn
+              ? "You can add your own notes above."
               : "Workout data will be available after initialization"}
           </p>
         </div>
