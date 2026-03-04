@@ -60,6 +60,123 @@ const categories: {
   },
 ];
 
+// ─── Static Period Relief Workout Entries ────────────────────────────────────
+
+const STATIC_PERIOD_WORKOUTS = [
+  {
+    id: "static-pr-1",
+    title: "🌷 1. Light Walking",
+    duration: "10–20 minutes",
+    difficulty: "Easy",
+    description: [
+      "→ Slow and comfortable pace",
+      "→ Improves blood circulation",
+      "→ Reduces cramps",
+      "→ Boosts mood",
+    ],
+  },
+  {
+    id: "static-pr-2",
+    title: "🌷 2. Gentle Stretching",
+    duration: "20–30 seconds per stretch",
+    difficulty: "Easy",
+    description: [
+      "→ Neck rolls",
+      "→ Shoulder rolls",
+      "→ Side stretch",
+      "→ Hamstring stretch",
+      "→ Reduces body stiffness",
+      "→ Relieves lower back pain",
+    ],
+  },
+  {
+    id: "static-pr-3",
+    title: "🌷 3. Cat–Cow Stretch",
+    duration: "8–10 repetitions",
+    difficulty: "Easy",
+    description: [
+      "→ Get on hands and knees",
+      "→ Inhale: Lift chest and hips (Cow pose)",
+      "→ Exhale: Round back (Cat pose)",
+      "→ Relieves abdominal cramps",
+      "→ Eases back pain",
+    ],
+  },
+  {
+    id: "static-pr-4",
+    title: "🌷 4. Child's Pose",
+    duration: "Hold for 30 seconds",
+    difficulty: "Easy",
+    description: [
+      "→ Kneel and sit back on heels",
+      "→ Stretch arms forward",
+      "→ Hold for 30 seconds",
+      "→ Relaxes lower abdomen",
+      "→ Calms the mind",
+    ],
+  },
+  {
+    id: "static-pr-5",
+    title: "🌷 5. Pelvic Tilts",
+    duration: "10 repetitions",
+    difficulty: "Easy",
+    description: [
+      "→ Lie on back (if comfortable) or stand against wall",
+      "→ Tighten stomach gently",
+      "→ Hold 5 seconds, release",
+      "→ Reduces lower back pain",
+    ],
+  },
+  {
+    id: "static-pr-6",
+    title: "🌷 6. Light Yoga Twists (Seated)",
+    duration: "Hold 20 seconds each side",
+    difficulty: "Easy",
+    description: [
+      "→ Sit cross-legged",
+      "→ Twist gently to one side",
+      "→ Hold 20 seconds each side",
+      "→ Helps reduce bloating",
+    ],
+  },
+  {
+    id: "static-pr-7",
+    title: "🌷 7. Deep Breathing",
+    duration: "5 minutes",
+    difficulty: "Easy",
+    description: [
+      "→ Inhale slowly for 4 seconds",
+      "→ Exhale slowly for 6 seconds",
+      "→ Reduces stress",
+      "→ Helps relax muscles",
+    ],
+  },
+  {
+    id: "static-pr-8",
+    title: "💡 Extra Tips During Periods",
+    duration: "Reference",
+    difficulty: "Beginner",
+    description: [
+      "→ Stay hydrated 💧",
+      "→ Use a heating pad for cramps",
+      "→ Avoid high-intensity workouts if feeling weak",
+      "→ Eat light, nutritious food",
+    ],
+  },
+  {
+    id: "static-pr-9",
+    title: "🚫 Avoid (If Painful)",
+    duration: "Reference",
+    difficulty: "Beginner",
+    description: [
+      "→ Heavy weight lifting",
+      "→ Intense abs workouts",
+      "→ Jumping exercises",
+      "→ Very long workouts",
+    ],
+  },
+];
+
 // ─── Static Pregnancy Workout Entries ────────────────────────────────────────
 
 const STATIC_PREGNANCY_WORKOUTS = [
@@ -212,8 +329,9 @@ export function WorkoutsPage() {
 
   const notes: ThozhiWorkoutNote[] = workoutNotes ?? [];
 
-  // For pregnancy tab, use static entries; for others, use backend entries
+  // For pregnancy and period_relief tabs, use static entries; for general, use backend entries
   const isPregnancyTab = activeTab === "pregnancy";
+  const isPeriodTab = activeTab === "period_relief";
 
   useEffect(() => {
     if (isActive) {
@@ -244,7 +362,7 @@ export function WorkoutsPage() {
   };
 
   const hasBackendContent = entries && entries.length > 0;
-  const hasStaticContent = isPregnancyTab;
+  const hasStaticContent = isPregnancyTab || isPeriodTab;
   const hasContent = hasStaticContent || hasBackendContent || notes.length > 0;
 
   return (
@@ -306,6 +424,18 @@ export function WorkoutsPage() {
         </div>
       )}
 
+      {/* Period Relief section heading */}
+      {isPeriodTab && (
+        <div className="rounded-2xl bg-rose-50 border border-rose-200 px-4 py-3">
+          <h3 className="font-semibold text-sm text-rose-900 text-center">
+            🌷 WORKOUTS FOR WOMEN DURING PERIODS
+          </h3>
+          <p className="text-xs text-rose-700 text-center mt-0.5">
+            Gentle exercises to ease cramps and boost mood
+          </p>
+        </div>
+      )}
+
       {/* Safety Note */}
       <div className="bg-primary/5 border border-primary/15 rounded-xl p-3">
         <p className="text-xs text-primary font-medium text-center">
@@ -329,7 +459,7 @@ export function WorkoutsPage() {
       )}
 
       {/* Workout Cards */}
-      {!isPregnancyTab && isLoading ? (
+      {!isPregnancyTab && !isPeriodTab && isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-28 w-full rounded-2xl" />
@@ -363,14 +493,15 @@ export function WorkoutsPage() {
                 </CardHeader>
                 <CardContent className="pb-4 pt-0 space-y-2">
                   <div className="space-y-0.5">
-                    {workout.description.map((line, li) =>
+                    {workout.description.map((line) =>
                       line === "" ? (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: static content
-                        <div key={li} className="h-1" />
+                        <div
+                          key={`${workout.id}-spacer-${line}`}
+                          className="h-1"
+                        />
                       ) : (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: static content
                         <p
-                          key={li}
+                          key={`${workout.id}-line-${line}`}
                           className="text-xs text-muted-foreground leading-relaxed"
                         >
                           {line}
@@ -388,8 +519,61 @@ export function WorkoutsPage() {
               </Card>
             ))}
 
-          {/* Backend workout entries (period_relief, general, or any future seeded entries) */}
+          {/* Static period relief workout entries */}
+          {isPeriodTab &&
+            STATIC_PERIOD_WORKOUTS.map((workout, index) => (
+              <Card
+                key={workout.id}
+                className="border-border shadow-sm hover:shadow-md transition-all"
+                data-ocid={`workouts.entry.item.${index + 1}`}
+              >
+                <CardHeader className="pb-2 pt-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-sm font-semibold text-foreground leading-tight flex-1">
+                      {workout.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <Badge
+                        className={`text-[10px] px-2 py-0.5 ${getDifficultyColor(workout.difficulty)}`}
+                        variant="outline"
+                      >
+                        <Zap className="h-2.5 w-2.5 mr-0.5 inline" />
+                        {workout.difficulty}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-4 pt-0 space-y-2">
+                  <div className="space-y-0.5">
+                    {workout.description.map((line) =>
+                      line === "" ? (
+                        <div
+                          key={`${workout.id}-spacer-${line}`}
+                          className="h-1"
+                        />
+                      ) : (
+                        <p
+                          key={`${workout.id}-line-${line}`}
+                          className="text-xs text-muted-foreground leading-relaxed"
+                        >
+                          {line}
+                        </p>
+                      ),
+                    )}
+                  </div>
+                  {workout.duration !== "Reference" && (
+                    <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                      <Clock className="h-3 w-3" />
+                      {workout.duration}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+
+          {/* Backend workout entries (general, or any future seeded entries) */}
           {!isPregnancyTab &&
+            !isPeriodTab &&
             entries?.map((entry, index) => (
               <Card
                 key={entry.id.toString()}
