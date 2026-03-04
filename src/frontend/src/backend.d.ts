@@ -59,6 +59,7 @@ export enum UserRole {
 export interface backendInterface {
     addContact(name: string, phone: string, relation: string): Promise<bigint>;
     addDietEntry(category: string, title: string, description: string): Promise<bigint>;
+    addFirstAidEntry(situation: string, steps: Array<string>): Promise<bigint>;
     addLocalService(name: string, type: string, address: string, phone: string, district: string): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createDietEntry(category: string, title: string, description: string, isPreloaded: boolean, createdBy: Principal | null): Promise<bigint>;

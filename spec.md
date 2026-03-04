@@ -1,34 +1,29 @@
 # Thozhi - Pengal Nalam
 
 ## Current State
-- App has Diet, SOS, First Aid, Workouts, Services, and Home pages
-- Diet page has Pregnancy, Menstrual, General tabs with backend-stored entries
-- Services page shows hospitals/health centres/police stations (read-only from backend)
-- Backend `initialize()` seeds police contact only; diet entries start at counter 13 (some seeded previously)
-- Logged-in users can add community diet entries visible to all
+- Full-stack women's wellness app with Diet, First Aid, SOS, Workouts, Services pages
+- First Aid page loads entries from backend; only preloaded entries shown (no user-added entries visible)
+- Backend `getFirstAidEntries` filters only preloaded=true entries
+- No `addFirstAidEntry` function for regular users in backend
+- First Aid currently has no preloaded data in `initialize()`
+- Steps are rendered with numbered circles, not arrow symbols
 
 ## Requested Changes (Diff)
 
 ### Add
-- Pre-loaded Period Care Plan entries for the "menstrual" diet category (8 sections: Foods to Eat, Foods to Avoid, Hydration Tips, Workouts & Movements, Natural Pain Relief Tips, Mood & Mental Health Care, Sample Daily Routine, When to See a Doctor)
-- Backend: seed these 8 menstrual diet entries in `initialize()` function
-- Services page: allow logged-in users to add new nearby hospitals/health centres with name, address, phone, district, type
-- Backend: add `addLocalService` function for users (non-admin) to submit a local service entry
-- Voice assistant coverage for new content/UI flows
+- 10 preloaded First Aid entries in backend `initialize()`: Fire Burns, Cuts & Minor Wounds, Slipped/Bruised Wounds (R.I.C.E), Knee Pain, Back Pain, Headache, Neck Pain, Shoulder Pain, Muscle Cramps, General First Aid Tips
+- `addFirstAidEntry(situation, steps)` backend function for logged-in users to add their own notes
+- Arrow symbol (→) rendering for each step in the First Aid UI
 
 ### Modify
-- Backend `initialize()` to seed the 8 Period Care Plan diet entries as `isPreloaded = true`
-- Backend `localServiceIdCounter` starts higher to avoid collision with seeded data
-- ServicesPage to show an "Add Service" button for logged-in users
-- `useQueries.ts` to add `useAddLocalService` mutation hook
+- `getFirstAidEntries` backend query: return ALL entries (preloaded + user-added), not just preloaded
+- `firstAidEntryIdCounter` starts at 11 (after 10 preloaded entries)
+- FirstAidPage frontend: render steps with → arrow prefix instead of numbered circles
+- Add button visible to logged-in users to add their own first aid notes
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Update `main.mo`:
-   - Add 8 menstrual Period Care Plan diet entries in `initialize()`
-   - Add `addLocalService` public shared function for users (non-admin)
-   - Set `dietEntryIdCounter` start higher to avoid collisions with seeded entries
-2. Update `useQueries.ts`: add `useAddLocalService` mutation
-3. Update `ServicesPage.tsx`: add "Add Service" dialog for logged-in users (name, type, address, phone, district fields) with voice assistant support
+1. Regenerate backend with 10 preloaded first aid entries in initialize(), addFirstAidEntry for users, getFirstAidEntries returns all entries
+2. Update FirstAidPage.tsx to render steps with → arrows and wire addFirstAidEntry for logged-in users

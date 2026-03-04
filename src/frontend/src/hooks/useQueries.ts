@@ -137,6 +137,23 @@ export function useCreateFirstAidEntry() {
   });
 }
 
+export function useAddFirstAidEntry() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      situation,
+      steps,
+    }: { situation: string; steps: string[] }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.addFirstAidEntry(situation, steps);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["firstaid"] });
+    },
+  });
+}
+
 // ─── Workouts ─────────────────────────────────────────────────────────────────
 
 export function useWorkouts(category: string) {

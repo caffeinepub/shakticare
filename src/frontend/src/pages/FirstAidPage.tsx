@@ -16,10 +16,7 @@ import { ChevronDown, ChevronUp, Loader2, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
-import {
-  useCreateFirstAidEntry,
-  useFirstAidEntries,
-} from "../hooks/useQueries";
+import { useAddFirstAidEntry, useFirstAidEntries } from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
 
 const situationEmojis: Record<string, string> = {
@@ -54,12 +51,12 @@ export function FirstAidPage() {
   const { isActive, speak } = useVoiceAssistant();
 
   const { data: entries, isLoading } = useFirstAidEntries();
-  const createMutation = useCreateFirstAidEntry();
+  const addMutation = useAddFirstAidEntry();
 
   useEffect(() => {
     if (isActive) {
       speak(
-        "First Aid page. Here you can find step by step first aid instructions for common emergencies including burns, cuts, fainting, and pregnancy emergencies.",
+        "First Aid Guide. Contains 10 first aid topics including burns, cuts, knee pain, back pain, headache, neck pain, shoulder pain, muscle cramps, and general tips. Each topic has step-by-step arrow-guided instructions. Log in to add your own notes.",
       );
     }
   }, [isActive, speak]);
@@ -81,13 +78,14 @@ export function FirstAidPage() {
     const steps = stepsText
       .split("\n")
       .map((s) => s.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .map((s) => (s.startsWith("→") ? s : `→ ${s}`));
     if (steps.length === 0) {
       toast.error("Please add at least one step.");
       return;
     }
     try {
-      await createMutation.mutateAsync({ situation, steps });
+      await addMutation.mutateAsync({ situation, steps });
       toast.success("First aid entry added!");
       setSituation("");
       setStepsText("");
@@ -166,12 +164,19 @@ export function FirstAidPage() {
                           >
                             {entry.steps.length} steps
                           </Badge>
-                          {entry.isPreloaded && (
+                          {entry.isPreloaded ? (
                             <Badge
                               variant="outline"
                               className="text-[10px] px-1.5 py-0 border-green-300 text-green-700"
                             >
                               ✓ Verified
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0 border-blue-300 text-blue-600"
+                            >
+                              Community Tip
                             </Badge>
                           )}
                         </div>
@@ -188,19 +193,21 @@ export function FirstAidPage() {
                 </CardHeader>
                 {isExpanded && (
                   <CardContent className="pb-4 pt-0">
-                    <ol className="space-y-2">
+                    <ul className="space-y-2">
                       {entry.steps.map((step, stepIdx) => (
                         <li
-                          key={`step-${stepIdx}-${step.slice(0, 10)}`}
-                          className="flex gap-3 text-sm text-muted-foreground"
+                          key={`step-${stepIdx}-${step.slice(0, 12)}`}
+                          className="flex gap-2 text-sm text-muted-foreground"
                         >
-                          <span className="flex-shrink-0 w-6 h-6 bg-primary/15 text-primary rounded-full flex items-center justify-center text-xs font-bold">
-                            {stepIdx + 1}
+                          <span className="text-primary font-bold flex-shrink-0">
+                            →
                           </span>
-                          <span className="pt-0.5 leading-relaxed">{step}</span>
+                          <span className="leading-relaxed">
+                            {step.replace(/^→\s*/, "")}
+                          </span>
                         </li>
                       ))}
-                    </ol>
+                    </ul>
                   </CardContent>
                 )}
               </Card>
@@ -254,7 +261,7 @@ export function FirstAidPage() {
               <Label className="text-sm">Steps (one per line)</Label>
               <Textarea
                 placeholder={
-                  "1. Cool the burn with cold water for 10 minutes\n2. Do not use ice or butter\n3. Cover with clean bandage\n4. Call doctor if severe"
+                  "Cool under running water for 10–15 minutes\nDo not apply ice directly\nApply aloe vera gel\nCover with clean bandage"
                 }
                 value={stepsText}
                 onChange={(e) => setStepsText(e.target.value)}
@@ -262,7 +269,8 @@ export function FirstAidPage() {
                 data-ocid="firstaid.add_steps.textarea"
               />
               <p className="text-xs text-muted-foreground">
-                Each line will become a separate step
+                One step per line. Each step will be shown with an arrow (→)
+                symbol.
               </p>
             </div>
           </div>
@@ -278,11 +286,11 @@ export function FirstAidPage() {
             </Button>
             <Button
               onClick={handleAdd}
-              disabled={createMutation.isPending}
+              disabled={addMutation.isPending}
               className="flex-1 rounded-xl"
               data-ocid="firstaid.add_entry.submit_button"
             >
-              {createMutation.isPending ? (
+              {addMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-1" />
               ) : (
                 <Plus className="h-4 w-4 mr-1" />

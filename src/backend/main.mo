@@ -20,7 +20,7 @@ actor {
 
   var emergencyContactIdCounter = 1;
   var dietEntryIdCounter = 21;
-  var firstAidEntryIdCounter = 1;
+  var firstAidEntryIdCounter = 11;
   var workoutEntryIdCounter = 1;
   var localServiceIdCounter = 1;
   var isInitialized = false;
@@ -173,10 +173,7 @@ actor {
   };
 
   public query ({ caller }) func getFirstAidEntries() : async [ThozhiFirstAidEntry] {
-    let entries = firstAidEntries.values().filter(
-      func(entry) { entry.isPreloaded }
-    );
-    entries.toArray().sort(ThozhiFirstAidEntry.compareType);
+    firstAidEntries.values().toArray().sort(ThozhiFirstAidEntry.compareType);
   };
 
   public query ({ caller }) func getWorkoutsByCategory(category : Text) : async [ThozhiWorkoutEntry] {
@@ -380,6 +377,22 @@ actor {
       steps;
       isPreloaded;
       createdBy;
+    };
+    firstAidEntries.add(firstAidEntryIdCounter, entry);
+    firstAidEntryIdCounter += 1;
+    entry.id;
+  };
+
+  public shared ({ caller }) func addFirstAidEntry(situation : Text, steps : [Text]) : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can add first aid entries");
+    };
+    let entry : ThozhiFirstAidEntry = {
+      id = firstAidEntryIdCounter;
+      situation;
+      steps;
+      isPreloaded = false;
+      createdBy = ?caller;
     };
     firstAidEntries.add(firstAidEntryIdCounter, entry);
     firstAidEntryIdCounter += 1;

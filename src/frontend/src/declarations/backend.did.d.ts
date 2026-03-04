@@ -61,6 +61,7 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addContact' : ActorMethod<[string, string, string], bigint>,
   'addDietEntry' : ActorMethod<[string, string, string], bigint>,
+  'addFirstAidEntry' : ActorMethod<[string, Array<string>], bigint>,
   'addLocalService' : ActorMethod<
     [string, string, string, string, string],
     bigint

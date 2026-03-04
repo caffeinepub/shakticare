@@ -142,6 +142,7 @@ export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     addContact(name: string, phone: string, relation: string): Promise<bigint>;
     addDietEntry(category: string, title: string, description: string): Promise<bigint>;
+    addFirstAidEntry(situation: string, steps: Array<string>): Promise<bigint>;
     addLocalService(name: string, type: string, address: string, phone: string, district: string): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createDietEntry(category: string, title: string, description: string, isPreloaded: boolean, createdBy: Principal | null): Promise<bigint>;
@@ -203,6 +204,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.addDietEntry(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async addFirstAidEntry(arg0: string, arg1: Array<string>): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addFirstAidEntry(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addFirstAidEntry(arg0, arg1);
             return result;
         }
     }
