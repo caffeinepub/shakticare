@@ -23,6 +23,7 @@ import { ChevronDown, ChevronUp, Loader2, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { ThozhiDietEntry } from "../backend.d";
+import { TapToAddNotesBanner } from "../components/TapToAddNotesBanner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useAddDietEntry, useDietEntries } from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
@@ -513,23 +514,18 @@ export function DietPage() {
         👥 Community entries added by users are visible to everyone.
       </p>
 
-      {/* Add Entry Button */}
-      {isLoggedIn && (
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            onClick={() => {
-              setCategory(activeTab);
-              setAddOpen(true);
-            }}
-            className="rounded-full gap-1.5 text-xs"
-            data-ocid="diet.add_button"
-          >
-            <Plus className="h-3 w-3" />
-            Add Entry
-          </Button>
-        </div>
-      )}
+      {/* Tap to add notes banner — always visible */}
+      <TapToAddNotesBanner
+        ocid="diet.tap_to_add_notes_button"
+        onClick={() => {
+          if (isLoggedIn) {
+            setCategory(activeTab);
+            setAddOpen(true);
+          } else {
+            toast.info("Please sign in to add notes.");
+          }
+        }}
+      />
 
       {/* Entries List */}
       {!isShowingContent && isLoading ? (

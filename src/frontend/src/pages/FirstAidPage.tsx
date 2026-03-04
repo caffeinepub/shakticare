@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ChevronDown, ChevronUp, Loader2, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TapToAddNotesBanner } from "../components/TapToAddNotesBanner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useAddFirstAidEntry, useFirstAidEntries } from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
@@ -128,6 +129,18 @@ export function FirstAidPage() {
           situations
         </p>
       </div>
+
+      {/* Tap to add notes banner — always visible */}
+      <TapToAddNotesBanner
+        ocid="firstaid.tap_to_add_notes_button"
+        onClick={() => {
+          if (isLoggedIn) {
+            setAddOpen(true);
+          } else {
+            toast.info("Please sign in to add notes.");
+          }
+        }}
+      />
 
       {/* Entries */}
       {isLoading ? (

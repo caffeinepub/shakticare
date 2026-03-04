@@ -10,9 +10,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Loader2, Phone, Plus, Trash2, X } from "lucide-react";
+import { AlertCircle, Loader2, Phone, Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TapToAddNotesBanner } from "../components/TapToAddNotesBanner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useAddContact, useContacts } from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
@@ -129,17 +130,20 @@ export function SOSPage() {
           <h3 className="font-display text-base font-semibold text-foreground">
             My Emergency Contacts
           </h3>
-          {isLoggedIn && (
-            <Button
-              size="sm"
-              onClick={() => setAddOpen(true)}
-              className="rounded-full gap-1.5 text-xs"
-              data-ocid="sos.add_contact_button"
-            >
-              <Plus className="h-3 w-3" />
-              Add Contact
-            </Button>
-          )}
+        </div>
+
+        {/* Tap to add notes banner — always visible */}
+        <div className="mb-3">
+          <TapToAddNotesBanner
+            ocid="sos.tap_to_add_notes_button"
+            onClick={() => {
+              if (isLoggedIn) {
+                setAddOpen(true);
+              } else {
+                toast.info("Please sign in to add emergency contacts.");
+              }
+            }}
+          />
         </div>
 
         {isLoading ? (

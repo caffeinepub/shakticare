@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ExternalLink, Loader2, MapPin, Phone, PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TapToAddNotesBanner } from "../components/TapToAddNotesBanner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useAddLocalService, useLocalServices } from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
@@ -167,150 +167,145 @@ export function ServicesPage() {
         </div>
 
         {isLoggedIn && (
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                className="flex items-center gap-1.5 flex-shrink-0"
-                data-ocid="services.add_button"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Add Location
-              </Button>
-            </DialogTrigger>
-            <DialogContent
-              className="max-w-sm mx-4"
-              data-ocid="services.add_location.dialog"
-            >
-              <DialogHeader>
-                <DialogTitle className="font-display">
-                  Add New Location
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-                {/* Name */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="svc-name" className="text-sm font-medium">
-                    Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="svc-name"
-                    placeholder="e.g. Government General Hospital"
-                    value={form.name}
-                    onChange={(e) => handleFormChange("name", e.target.value)}
-                    data-ocid="services.add_name.input"
-                    required
-                  />
-                </div>
-
-                {/* Type */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="svc-type" className="text-sm font-medium">
-                    Type <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={form.type}
-                    onValueChange={(v) => handleFormChange("type", v)}
-                  >
-                    <SelectTrigger
-                      id="svc-type"
-                      data-ocid="services.add_type.select"
-                    >
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hospital">🏥 Hospital</SelectItem>
-                      <SelectItem value="health_center">
-                        🏨 Health Center
-                      </SelectItem>
-                      <SelectItem value="police">🚔 Police Station</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Address */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="svc-address" className="text-sm font-medium">
-                    Address <span className="text-destructive">*</span>
-                  </Label>
-                  <Textarea
-                    id="svc-address"
-                    placeholder="Full address of the location"
-                    value={form.address}
-                    onChange={(e) =>
-                      handleFormChange("address", e.target.value)
-                    }
-                    rows={2}
-                    data-ocid="services.add_address.textarea"
-                    required
-                  />
-                </div>
-
-                {/* Phone */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="svc-phone" className="text-sm font-medium">
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="svc-phone"
-                    type="tel"
-                    placeholder="e.g. 044-12345678"
-                    value={form.phone}
-                    onChange={(e) => handleFormChange("phone", e.target.value)}
-                    data-ocid="services.add_phone.input"
-                  />
-                </div>
-
-                {/* District */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="svc-district" className="text-sm font-medium">
-                    District <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="svc-district"
-                    placeholder="e.g. Chennai, Coimbatore"
-                    value={form.district}
-                    onChange={(e) =>
-                      handleFormChange("district", e.target.value)
-                    }
-                    data-ocid="services.add_district.input"
-                    required
-                  />
-                </div>
-
-                <DialogFooter className="gap-2 pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setForm(defaultFormState);
-                      setDialogOpen(false);
-                    }}
-                    data-ocid="services.add_location.cancel_button"
-                    disabled={addLocalService.isPending}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    data-ocid="services.add_location.submit_button"
-                    disabled={addLocalService.isPending}
-                  >
-                    {addLocalService.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Adding…
-                      </>
-                    ) : (
-                      "Add Location"
-                    )}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button
+            size="sm"
+            className="flex items-center gap-1.5 flex-shrink-0"
+            data-ocid="services.add_button"
+            onClick={() => setDialogOpen(true)}
+          >
+            <PlusCircle className="h-4 w-4" />
+            Add Location
+          </Button>
         )}
       </div>
+
+      {/* Add Location Dialog — rendered outside header so banner can open it */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent
+          className="max-w-sm mx-4"
+          data-ocid="services.add_location.dialog"
+        >
+          <DialogHeader>
+            <DialogTitle className="font-display">Add New Location</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+            {/* Name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="svc-name" className="text-sm font-medium">
+                Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="svc-name"
+                placeholder="e.g. Government General Hospital"
+                value={form.name}
+                onChange={(e) => handleFormChange("name", e.target.value)}
+                data-ocid="services.add_name.input"
+                required
+              />
+            </div>
+
+            {/* Type */}
+            <div className="space-y-1.5">
+              <Label htmlFor="svc-type" className="text-sm font-medium">
+                Type <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={form.type}
+                onValueChange={(v) => handleFormChange("type", v)}
+              >
+                <SelectTrigger
+                  id="svc-type"
+                  data-ocid="services.add_type.select"
+                >
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hospital">🏥 Hospital</SelectItem>
+                  <SelectItem value="health_center">
+                    🏨 Health Center
+                  </SelectItem>
+                  <SelectItem value="police">🚔 Police Station</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Address */}
+            <div className="space-y-1.5">
+              <Label htmlFor="svc-address" className="text-sm font-medium">
+                Address <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="svc-address"
+                placeholder="Full address of the location"
+                value={form.address}
+                onChange={(e) => handleFormChange("address", e.target.value)}
+                rows={2}
+                data-ocid="services.add_address.textarea"
+                required
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="space-y-1.5">
+              <Label htmlFor="svc-phone" className="text-sm font-medium">
+                Phone Number
+              </Label>
+              <Input
+                id="svc-phone"
+                type="tel"
+                placeholder="e.g. 044-12345678"
+                value={form.phone}
+                onChange={(e) => handleFormChange("phone", e.target.value)}
+                data-ocid="services.add_phone.input"
+              />
+            </div>
+
+            {/* District */}
+            <div className="space-y-1.5">
+              <Label htmlFor="svc-district" className="text-sm font-medium">
+                District <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="svc-district"
+                placeholder="e.g. Chennai, Coimbatore"
+                value={form.district}
+                onChange={(e) => handleFormChange("district", e.target.value)}
+                data-ocid="services.add_district.input"
+                required
+              />
+            </div>
+
+            <DialogFooter className="gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setForm(defaultFormState);
+                  setDialogOpen(false);
+                }}
+                data-ocid="services.add_location.cancel_button"
+                disabled={addLocalService.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                data-ocid="services.add_location.submit_button"
+                disabled={addLocalService.isPending}
+              >
+                {addLocalService.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding…
+                  </>
+                ) : (
+                  "Add Location"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Filter Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -338,6 +333,18 @@ export function ServicesPage() {
           💡 Log in to add nearby hospitals, health centres, and police stations
         </p>
       )}
+
+      {/* Tap to add notes banner — always visible */}
+      <TapToAddNotesBanner
+        ocid="services.tap_to_add_notes_button"
+        onClick={() => {
+          if (isLoggedIn) {
+            setDialogOpen(true);
+          } else {
+            toast.info("Please sign in to add locations.");
+          }
+        }}
+      />
 
       {/* Services List */}
       {isLoading ? (

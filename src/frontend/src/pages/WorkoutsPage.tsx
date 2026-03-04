@@ -16,6 +16,7 @@ import { Clock, Loader2, Plus, X, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { ThozhiWorkoutNote } from "../backend.d";
+import { TapToAddNotesBanner } from "../components/TapToAddNotesBanner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useAddWorkoutNote,
@@ -580,20 +581,17 @@ export function WorkoutsPage() {
         </p>
       </div>
 
-      {/* Add Note Button — logged-in users on any tab */}
-      {isLoggedIn && (
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            onClick={() => setAddNoteOpen(true)}
-            className="rounded-full gap-1.5 text-xs"
-            data-ocid="workouts.add_note_button"
-          >
-            <Plus className="h-3 w-3" />
-            Add Note
-          </Button>
-        </div>
-      )}
+      {/* Tap to add notes banner — always visible */}
+      <TapToAddNotesBanner
+        ocid="workouts.tap_to_add_notes_button"
+        onClick={() => {
+          if (isLoggedIn) {
+            setAddNoteOpen(true);
+          } else {
+            toast.info("Please sign in to add notes.");
+          }
+        }}
+      />
 
       {/* General section heading */}
       {isGeneralTab && (

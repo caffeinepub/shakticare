@@ -10,6 +10,8 @@ import {
   Salad,
 } from "lucide-react";
 import { useEffect } from "react";
+import { toast } from "sonner";
+import { TapToAddNotesBanner } from "../components/TapToAddNotesBanner";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
 
@@ -205,6 +207,18 @@ export function HomePage({ navigate }: HomePageProps) {
           )}
         </div>
       </section>
+
+      {/* Tap to add notes banner — always visible */}
+      <TapToAddNotesBanner
+        ocid="home.tap_to_add_notes_button"
+        onClick={() => {
+          if (isLoggedIn) {
+            navigate("/diet");
+          } else {
+            toast.info("Please sign in to add personal notes.");
+          }
+        }}
+      />
 
       {/* Health Tips */}
       <section>
