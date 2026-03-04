@@ -76,7 +76,7 @@ export function Header({ currentPage, navigate }: HeaderProps) {
         >
           <div className="w-9 h-9 rounded-full overflow-hidden shadow-sm ring-2 ring-primary/20">
             <img
-              src="/assets/generated/shakticare-logo-transparent.dim_200x200.png"
+              src="/assets/generated/thozhi-icon-transparent.dim_512x512.png"
               alt="Thozhi Logo"
               className="w-full h-full object-cover"
             />
@@ -163,7 +163,7 @@ export function Header({ currentPage, navigate }: HeaderProps) {
           <div className="text-center space-y-4 py-2">
             <div className="w-20 h-20 mx-auto rounded-full overflow-hidden ring-4 ring-primary/20 shadow-md">
               <img
-                src="/assets/generated/shakticare-logo-transparent.dim_200x200.png"
+                src="/assets/generated/thozhi-icon-transparent.dim_512x512.png"
                 alt="Thozhi"
                 className="w-full h-full object-cover"
               />
