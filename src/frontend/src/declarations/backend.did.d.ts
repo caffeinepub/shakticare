@@ -54,6 +54,13 @@ export interface ThozhiWorkoutEntry {
   'description' : string,
   'category' : string,
 }
+export interface ThozhiWorkoutNote {
+  'id' : bigint,
+  'title' : string,
+  'createdBy' : Principal,
+  'description' : string,
+  'category' : string,
+}
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
@@ -66,6 +73,7 @@ export interface _SERVICE {
     [string, string, string, string, string],
     bigint
   >,
+  'addWorkoutNote' : ActorMethod<[string, string, string], bigint>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createDietEntry' : ActorMethod<
     [string, string, string, boolean, [] | [Principal]],
@@ -90,6 +98,7 @@ export interface _SERVICE {
   'getFirstAidEntries' : ActorMethod<[], Array<ThozhiFirstAidEntry>>,
   'getServicesByType' : ActorMethod<[string], Array<ThozhiLocalService>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [ThozhiUserProfile]>,
+  'getWorkoutNotesByCategory' : ActorMethod<[string], Array<ThozhiWorkoutNote>>,
   'getWorkoutsByCategory' : ActorMethod<[string], Array<ThozhiWorkoutEntry>>,
   'initialize' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,

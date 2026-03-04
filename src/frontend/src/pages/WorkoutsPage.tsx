@@ -1,9 +1,27 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, Zap } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Clock, Loader2, Plus, X, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useWorkouts } from "../hooks/useQueries";
+import { toast } from "sonner";
+import type { ThozhiWorkoutNote } from "../backend.d";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import {
+  useAddWorkoutNote,
+  useWorkoutNotes,
+  useWorkouts,
+} from "../hooks/useQueries";
 import { useVoiceAssistant } from "../hooks/useVoiceAssistant";
 
 type WorkoutCategory = "pregnancy" | "period_relief" | "general";
@@ -59,19 +77,58 @@ function getDifficultyColor(difficulty: string): string {
 
 export function WorkoutsPage() {
   const [activeTab, setActiveTab] = useState<WorkoutCategory>("pregnancy");
+  const [addNoteOpen, setAddNoteOpen] = useState(false);
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteDescription, setNoteDescription] = useState("");
+
+  const { isLoginSuccess, identity } = useInternetIdentity();
+  const isLoggedIn = isLoginSuccess && !!identity;
   const { isActive, speak } = useVoiceAssistant();
 
   const { data: entries, isLoading } = useWorkouts(activeTab);
+  const { data: workoutNotes } = useWorkoutNotes(activeTab);
+  const addNoteMutation = useAddWorkoutNote();
 
   const activeCategory = categories.find((c) => c.value === activeTab)!;
 
+  const notes: ThozhiWorkoutNote[] =
+    activeTab === "general" ? (workoutNotes ?? []) : [];
+
   useEffect(() => {
     if (isActive) {
+      const generalNote =
+        activeTab === "general"
+          ? " On the General tab, you can add your own personal workout notes by tapping the Add Note button."
+          : "";
       speak(
-        `Workouts page. Showing ${activeTab.replace("_", " ")} exercises. These are safe and gentle exercises designed specifically for women.`,
+        `Workouts page. Showing ${activeTab.replace("_", " ")} exercises. These are safe and gentle exercises designed specifically for women.${generalNote}`,
       );
     }
   }, [isActive, speak, activeTab]);
+
+  const handleAddNote = async () => {
+    if (!noteTitle.trim() || !noteDescription.trim()) {
+      toast.error("Please fill in both title and description.");
+      return;
+    }
+    try {
+      await addNoteMutation.mutateAsync({
+        category: activeTab,
+        title: noteTitle,
+        description: noteDescription,
+      });
+      toast.success("Note added successfully!");
+      setNoteTitle("");
+      setNoteDescription("");
+      setAddNoteOpen(false);
+    } catch {
+      toast.error("Failed to add note. Please try again.");
+    }
+  };
+
+  const hasContent =
+    (entries && entries.length > 0) ||
+    (activeTab === "general" && notes.length > 0);
 
   return (
     <div className="px-4 py-4 max-w-lg mx-auto space-y-5 animate-fade-in">
@@ -127,6 +184,21 @@ export function WorkoutsPage() {
         </p>
       </div>
 
+      {/* Add Note Button — General tab only, logged-in users */}
+      {activeTab === "general" && isLoggedIn && (
+        <div className="flex justify-end">
+          <Button
+            size="sm"
+            onClick={() => setAddNoteOpen(true)}
+            className="rounded-full gap-1.5 text-xs"
+            data-ocid="workouts.add_note_button"
+          >
+            <Plus className="h-3 w-3" />
+            Add Note
+          </Button>
+        </div>
+      )}
+
       {/* Workout Cards */}
       {isLoading ? (
         <div className="space-y-3">
@@ -134,9 +206,10 @@ export function WorkoutsPage() {
             <Skeleton key={i} className="h-28 w-full rounded-2xl" />
           ))}
         </div>
-      ) : entries && entries.length > 0 ? (
+      ) : hasContent ? (
         <div className="space-y-3">
-          {entries.map((entry, index) => (
+          {/* Preloaded workout entries */}
+          {entries?.map((entry, index) => (
             <Card
               key={entry.id.toString()}
               className="border-border shadow-sm hover:shadow-md transition-all"
@@ -169,6 +242,35 @@ export function WorkoutsPage() {
               </CardContent>
             </Card>
           ))}
+
+          {/* Personal notes — General tab only */}
+          {activeTab === "general" &&
+            notes.map((note, index) => (
+              <Card
+                key={note.id.toString()}
+                className="border-border shadow-sm hover:shadow-md transition-all"
+                data-ocid={`workouts.note.item.${index + 1}`}
+              >
+                <CardHeader className="pb-2 pt-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-sm font-semibold text-foreground leading-tight flex-1">
+                      {note.title}
+                    </CardTitle>
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] px-2 py-0.5 border-teal-300 bg-teal-50 text-teal-700 flex-shrink-0"
+                    >
+                      📝 My Note
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-4 pt-0">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {note.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
         </div>
       ) : (
         <div
@@ -180,7 +282,9 @@ export function WorkoutsPage() {
             No workouts loaded yet
           </p>
           <p className="text-xs text-muted-foreground">
-            Workout data will be available after initialization
+            {activeTab === "general"
+              ? "Workout data will be available after initialization. You can also add your own notes above."
+              : "Workout data will be available after initialization"}
           </p>
         </div>
       )}
@@ -200,6 +304,66 @@ export function WorkoutsPage() {
           </ul>
         </CardContent>
       </Card>
+
+      {/* Add Note Dialog */}
+      <Dialog open={addNoteOpen} onOpenChange={setAddNoteOpen}>
+        <DialogContent
+          className="max-w-sm rounded-2xl"
+          data-ocid="workouts.add_note.dialog"
+        >
+          <DialogHeader>
+            <DialogTitle className="font-display text-lg text-primary">
+              Add Personal Note
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-1">
+            <div className="space-y-1.5">
+              <Label className="text-sm">Title</Label>
+              <Input
+                placeholder="e.g., My Morning Yoga Routine"
+                value={noteTitle}
+                onChange={(e) => setNoteTitle(e.target.value)}
+                className="rounded-xl"
+                data-ocid="workouts.note_title.input"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-sm">Description</Label>
+              <Textarea
+                placeholder="Describe the workout, steps, or any tips..."
+                value={noteDescription}
+                onChange={(e) => setNoteDescription(e.target.value)}
+                className="rounded-xl min-h-[100px]"
+                data-ocid="workouts.note_description.textarea"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 flex-row">
+            <Button
+              variant="outline"
+              onClick={() => setAddNoteOpen(false)}
+              className="flex-1 rounded-xl"
+              data-ocid="workouts.add_note.cancel_button"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddNote}
+              disabled={addNoteMutation.isPending}
+              className="flex-1 rounded-xl"
+              data-ocid="workouts.add_note.submit_button"
+            >
+              {addNoteMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              ) : (
+                <Plus className="h-4 w-4 mr-1" />
+              )}
+              Add Note
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

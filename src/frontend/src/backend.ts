@@ -105,6 +105,13 @@ export interface ThozhiWorkoutEntry {
     description: string;
     category: string;
 }
+export interface ThozhiWorkoutNote {
+    id: bigint;
+    title: string;
+    createdBy: Principal;
+    description: string;
+    category: string;
+}
 export interface ThozhiDietEntry {
     id: bigint;
     title: string;
@@ -144,6 +151,7 @@ export interface backendInterface {
     addDietEntry(category: string, title: string, description: string): Promise<bigint>;
     addFirstAidEntry(situation: string, steps: Array<string>): Promise<bigint>;
     addLocalService(name: string, type: string, address: string, phone: string, district: string): Promise<bigint>;
+    addWorkoutNote(category: string, title: string, description: string): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createDietEntry(category: string, title: string, description: string, isPreloaded: boolean, createdBy: Principal | null): Promise<bigint>;
     createFirstAidEntry(situation: string, steps: Array<string>, isPreloaded: boolean, createdBy: Principal | null): Promise<bigint>;
@@ -156,6 +164,7 @@ export interface backendInterface {
     getFirstAidEntries(): Promise<Array<ThozhiFirstAidEntry>>;
     getServicesByType(type: string): Promise<Array<ThozhiLocalService>>;
     getUserProfile(user: Principal): Promise<ThozhiUserProfile | null>;
+    getWorkoutNotesByCategory(category: string): Promise<Array<ThozhiWorkoutNote>>;
     getWorkoutsByCategory(category: string): Promise<Array<ThozhiWorkoutEntry>>;
     initialize(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
@@ -232,6 +241,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.addLocalService(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
+    async addWorkoutNote(arg0: string, arg1: string, arg2: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addWorkoutNote(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addWorkoutNote(arg0, arg1, arg2);
             return result;
         }
     }
@@ -401,6 +424,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getUserProfile(arg0);
             return from_candid_opt_n4(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getWorkoutNotesByCategory(arg0: string): Promise<Array<ThozhiWorkoutNote>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getWorkoutNotesByCategory(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getWorkoutNotesByCategory(arg0);
+            return result;
         }
     }
     async getWorkoutsByCategory(arg0: string): Promise<Array<ThozhiWorkoutEntry>> {

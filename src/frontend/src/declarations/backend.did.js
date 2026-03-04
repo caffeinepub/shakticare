@@ -49,6 +49,13 @@ export const ThozhiLocalService = IDL.Record({
   'address' : IDL.Text,
   'phone' : IDL.Text,
 });
+export const ThozhiWorkoutNote = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'createdBy' : IDL.Principal,
+  'description' : IDL.Text,
+  'category' : IDL.Text,
+});
 export const ThozhiWorkoutEntry = IDL.Record({
   'id' : IDL.Nat,
   'title' : IDL.Text,
@@ -68,6 +75,7 @@ export const idlService = IDL.Service({
       [IDL.Nat],
       [],
     ),
+  'addWorkoutNote' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Nat], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createDietEntry' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Bool, IDL.Opt(IDL.Principal)],
@@ -114,6 +122,11 @@ export const idlService = IDL.Service({
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(ThozhiUserProfile)],
+      ['query'],
+    ),
+  'getWorkoutNotesByCategory' : IDL.Func(
+      [IDL.Text],
+      [IDL.Vec(ThozhiWorkoutNote)],
       ['query'],
     ),
   'getWorkoutsByCategory' : IDL.Func(
@@ -171,6 +184,13 @@ export const idlFactory = ({ IDL }) => {
     'address' : IDL.Text,
     'phone' : IDL.Text,
   });
+  const ThozhiWorkoutNote = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'createdBy' : IDL.Principal,
+    'description' : IDL.Text,
+    'category' : IDL.Text,
+  });
   const ThozhiWorkoutEntry = IDL.Record({
     'id' : IDL.Nat,
     'title' : IDL.Text,
@@ -190,6 +210,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Nat],
         [],
       ),
+    'addWorkoutNote' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [IDL.Nat], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createDietEntry' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Bool, IDL.Opt(IDL.Principal)],
@@ -236,6 +257,11 @@ export const idlFactory = ({ IDL }) => {
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(ThozhiUserProfile)],
+        ['query'],
+      ),
+    'getWorkoutNotesByCategory' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(ThozhiWorkoutNote)],
         ['query'],
       ),
     'getWorkoutsByCategory' : IDL.Func(

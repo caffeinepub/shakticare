@@ -9,7 +9,9 @@ import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   let emergencyContacts = Map.empty<Nat, ThozhiContact>();
   let dietEntries = Map.empty<Nat, ThozhiDietEntry>();
@@ -17,12 +19,14 @@ actor {
   let workoutEntries = Map.empty<Nat, ThozhiWorkoutEntry>();
   let localServices = Map.empty<Nat, ThozhiLocalService>();
   let userProfiles = Map.empty<Principal, ThozhiUserProfile>();
+  let workoutNotes = Map.empty<Nat, ThozhiWorkoutNote>();
 
   var emergencyContactIdCounter = 1;
   var dietEntryIdCounter = 21;
   var firstAidEntryIdCounter = 11;
   var workoutEntryIdCounter = 1;
   var localServiceIdCounter = 1;
+  var workoutNoteIdCounter = 1;
   var isInitialized = false;
 
   type ThozhiContact = {
@@ -108,6 +112,20 @@ actor {
   module ThozhiUserProfile {
     public func compareType(a : ThozhiUserProfile, b : ThozhiUserProfile) : Order.Order {
       Text.compare(a.name, b.name);
+    };
+  };
+
+  type ThozhiWorkoutNote = {
+    id : Nat;
+    category : Text;
+    title : Text;
+    description : Text;
+    createdBy : Principal;
+  };
+
+  module ThozhiWorkoutNote {
+    public func compareType(a : ThozhiWorkoutNote, b : ThozhiWorkoutNote) : Order.Order {
+      Nat.compare(a.id, b.id);
     };
   };
 
@@ -445,8 +463,6 @@ actor {
     service.id;
   };
 
-  // 1. Only regular users can use this function (not admins) => guard
-  // 2. isPreloaded field should always be false for this function
   public shared ({ caller }) func addLocalService(
     name : Text,
     type_ : Text,
@@ -468,5 +484,28 @@ actor {
     localServices.add(localServiceIdCounter, service);
     localServiceIdCounter += 1;
     service.id;
+  };
+
+  public shared ({ caller }) func addWorkoutNote(category : Text, title : Text, description : Text) : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can add workout notes");
+    };
+    let note : ThozhiWorkoutNote = {
+      id = workoutNoteIdCounter;
+      category;
+      title;
+      description;
+      createdBy = caller;
+    };
+    workoutNotes.add(workoutNoteIdCounter, note);
+    workoutNoteIdCounter += 1;
+    note.id;
+  };
+
+  public query ({ caller }) func getWorkoutNotesByCategory(category : Text) : async [ThozhiWorkoutNote] {
+    let notes = workoutNotes.values().filter(
+      func(note) { Text.equal(note.category, category) }
+    );
+    notes.toArray().sort(ThozhiWorkoutNote.compareType);
   };
 };

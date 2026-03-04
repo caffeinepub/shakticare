@@ -6,6 +6,7 @@ import type {
   ThozhiLocalService,
   ThozhiUserProfile,
   ThozhiWorkoutEntry,
+  ThozhiWorkoutNote,
 } from "../backend.d";
 import { useActor } from "./useActor";
 
@@ -165,6 +166,38 @@ export function useWorkouts(category: string) {
       return actor.getWorkoutsByCategory(category);
     },
     enabled: !!actor && !isFetching,
+  });
+}
+
+export function useWorkoutNotes(category: string) {
+  const { actor, isFetching } = useActor();
+  return useQuery<ThozhiWorkoutNote[]>({
+    queryKey: ["workoutNotes", category],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getWorkoutNotesByCategory(category);
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useAddWorkoutNote() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      category,
+      title,
+      description,
+    }: { category: string; title: string; description: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.addWorkoutNote(category, title, description);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["workoutNotes", variables.category],
+      });
+    },
   });
 }
 

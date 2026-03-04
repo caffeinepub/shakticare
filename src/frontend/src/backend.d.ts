@@ -23,6 +23,13 @@ export interface ThozhiWorkoutEntry {
     description: string;
     category: string;
 }
+export interface ThozhiWorkoutNote {
+    id: bigint;
+    title: string;
+    createdBy: Principal;
+    description: string;
+    category: string;
+}
 export interface ThozhiDietEntry {
     id: bigint;
     title: string;
@@ -61,6 +68,7 @@ export interface backendInterface {
     addDietEntry(category: string, title: string, description: string): Promise<bigint>;
     addFirstAidEntry(situation: string, steps: Array<string>): Promise<bigint>;
     addLocalService(name: string, type: string, address: string, phone: string, district: string): Promise<bigint>;
+    addWorkoutNote(category: string, title: string, description: string): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createDietEntry(category: string, title: string, description: string, isPreloaded: boolean, createdBy: Principal | null): Promise<bigint>;
     createFirstAidEntry(situation: string, steps: Array<string>, isPreloaded: boolean, createdBy: Principal | null): Promise<bigint>;
@@ -73,6 +81,7 @@ export interface backendInterface {
     getFirstAidEntries(): Promise<Array<ThozhiFirstAidEntry>>;
     getServicesByType(type: string): Promise<Array<ThozhiLocalService>>;
     getUserProfile(user: Principal): Promise<ThozhiUserProfile | null>;
+    getWorkoutNotesByCategory(category: string): Promise<Array<ThozhiWorkoutNote>>;
     getWorkoutsByCategory(category: string): Promise<Array<ThozhiWorkoutEntry>>;
     initialize(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;

@@ -1,29 +1,33 @@
-# Thozhi - Pengal Nalam
+# Thozhi
 
 ## Current State
-- Full-stack women's wellness app with Diet, First Aid, SOS, Workouts, Services pages
-- First Aid page loads entries from backend; only preloaded entries shown (no user-added entries visible)
-- Backend `getFirstAidEntries` filters only preloaded=true entries
-- No `addFirstAidEntry` function for regular users in backend
-- First Aid currently has no preloaded data in `initialize()`
-- Steps are rendered with numbered circles, not arrow symbols
+- Diet page has Pregnancy, Menstrual, and General tabs. Pregnancy and Menstrual tabs have pre-loaded content and an "Add Entry" button for logged-in users (all categories). General diet tab also shows the add button but has no pre-loaded entries.
+- Workouts page has Pregnancy, Period Relief, and General tabs. It only displays pre-loaded workout entries fetched from the backend. There is no way for users to add personal notes to any workout category.
+- Backend has `addDietEntry` (user-callable) for diet, but no user-callable function to add workout notes.
 
 ## Requested Changes (Diff)
 
 ### Add
-- 10 preloaded First Aid entries in backend `initialize()`: Fire Burns, Cuts & Minor Wounds, Slipped/Bruised Wounds (R.I.C.E), Knee Pain, Back Pain, Headache, Neck Pain, Shoulder Pain, Muscle Cramps, General First Aid Tips
-- `addFirstAidEntry(situation, steps)` backend function for logged-in users to add their own notes
-- Arrow symbol (→) rendering for each step in the First Aid UI
+- Backend: `ThozhiWorkoutNote` type (id, category, title, description, createdBy)
+- Backend: `addWorkoutNote(category, title, description)` — user-callable, saves a personal workout note
+- Backend: `getWorkoutNotesByCategory(category)` — query returning notes for a given category
+- Frontend: `useWorkoutNotes(category)` and `useAddWorkoutNote()` hooks in `useQueries.ts`
+- Frontend: "Add Note" button in the **General** tab of WorkoutsPage for logged-in users
+- Frontend: Dialog to add a workout note (title + description fields)
+- Frontend: Display user-added workout notes in the General tab below pre-loaded workouts, with a "Personal Note" badge
+- Frontend: General diet tab — add a visible "Add Note" button for logged-in users (currently the button exists but may not be prominent enough); ensure it works and displays user notes with a "Personal Note" / "Community" badge
 
 ### Modify
-- `getFirstAidEntries` backend query: return ALL entries (preloaded + user-added), not just preloaded
-- `firstAidEntryIdCounter` starts at 11 (after 10 preloaded entries)
-- FirstAidPage frontend: render steps with → arrow prefix instead of numbered circles
-- Add button visible to logged-in users to add their own first aid notes
+- WorkoutsPage: Add note-adding UI (dialog + button) only visible on the General tab for logged-in users
+- WorkoutsPage: Merge static workout entries with user notes for the General tab
+- DietPage: Ensure the General tab clearly shows the "Add Entry" button and displays community notes (already partially implemented, confirm it works end-to-end)
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-1. Regenerate backend with 10 preloaded first aid entries in initialize(), addFirstAidEntry for users, getFirstAidEntries returns all entries
-2. Update FirstAidPage.tsx to render steps with → arrows and wire addFirstAidEntry for logged-in users
+1. Add `ThozhiWorkoutNote` type and `addWorkoutNote` / `getWorkoutNotesByCategory` functions to `main.mo`
+2. Regenerate `backend.d.ts` bindings (update manually to match new functions)
+3. Add `useWorkoutNotes` and `useAddWorkoutNote` hooks to `useQueries.ts`
+4. Update `WorkoutsPage.tsx` to show "Add Note" button + dialog on General tab, fetch and display workout notes
+5. Verify DietPage General tab add-entry flow works correctly (no changes needed if already functional)
