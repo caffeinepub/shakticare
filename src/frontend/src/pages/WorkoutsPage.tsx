@@ -177,6 +177,142 @@ const STATIC_PERIOD_WORKOUTS = [
   },
 ];
 
+// ─── Static General Workout Entries ──────────────────────────────────────────
+
+const STATIC_GENERAL_WORKOUTS = [
+  {
+    id: "static-g-1",
+    title: "🌼 Simple Daily Workout Plan (20–30 Minutes)",
+    duration: "20–30 minutes daily",
+    difficulty: "Beginner",
+    description: [
+      "→ A complete daily routine to keep you fit and healthy",
+      "→ Suitable for all fitness levels",
+      "→ Designed to be done at home with no equipment",
+    ],
+  },
+  {
+    id: "static-g-2",
+    title: "1️⃣ Warm-Up (5 Minutes)",
+    duration: "30–60 seconds each",
+    difficulty: "Easy",
+    description: [
+      "→ March in place",
+      "→ Arm circles",
+      "→ Shoulder rolls",
+      "→ Gentle side bends",
+      "",
+      "✔ Prepares body",
+      "✔ Prevents injury",
+    ],
+  },
+  {
+    id: "static-g-3",
+    title: "2️⃣ Basic Cardio (5–10 Minutes)",
+    duration: "5–10 minutes",
+    difficulty: "Easy",
+    description: [
+      "Choose any:",
+      "→ Brisk walking 🚶‍♀️",
+      "→ Light jogging in place",
+      "→ Step-ups on stairs",
+      "→ Skipping (slow pace)",
+      "",
+      "✔ Burns calories",
+      "✔ Improves heart health",
+      "✔ Boosts energy",
+    ],
+  },
+  {
+    id: "static-g-4",
+    title: "3️⃣ Lower Body Exercises",
+    duration: "2 sets each",
+    difficulty: "Easy",
+    description: [
+      "🔹 Squats",
+      "→ 10–15 repetitions",
+      "→ 2 sets",
+      "✔ Strengthens thighs & hips",
+      "",
+      "🔹 Lunges",
+      "→ 10 each leg",
+      "→ 2 sets",
+      "✔ Improves balance",
+    ],
+  },
+  {
+    id: "static-g-5",
+    title: "4️⃣ Upper Body Exercises",
+    duration: "2 sets each",
+    difficulty: "Easy",
+    description: [
+      "🔹 Wall Push-Ups",
+      "→ 10–15 repetitions",
+      "→ 2 sets",
+      "✔ Strengthens arms & shoulders",
+      "",
+      "🔹 Arm Raises",
+      "→ Lift arms forward & sideways",
+      "→ 10 repetitions each",
+      "✔ Tones shoulders",
+    ],
+  },
+  {
+    id: "static-g-6",
+    title: "5️⃣ Core (Stomach Area)",
+    duration: "Varies",
+    difficulty: "Easy",
+    description: [
+      "🔹 Standing Knee Lifts",
+      "→ Lift knee to chest",
+      "→ 10 each leg",
+      "✔ Improves core strength",
+      "",
+      "🔹 Plank (Beginner)",
+      "→ Hold for 15–30 seconds",
+      "✔ Strengthens abs & back",
+    ],
+  },
+  {
+    id: "static-g-7",
+    title: "6️⃣ Cool Down & Stretch (5 Minutes)",
+    duration: "5 minutes",
+    difficulty: "Easy",
+    description: [
+      "→ Hamstring stretch",
+      "→ Quad stretch",
+      "→ Child's pose",
+      "→ Deep breathing",
+      "",
+      "✔ Reduces muscle soreness",
+      "✔ Relaxes body",
+    ],
+  },
+  {
+    id: "static-g-8",
+    title: "📅 Weekly Plan Suggestion",
+    duration: "Reference",
+    difficulty: "Beginner",
+    description: [
+      "→ 3–5 days per week",
+      "→ Rest days in between",
+      "→ Increase repetitions slowly",
+    ],
+  },
+  {
+    id: "static-g-9",
+    title: "💧 Important Tips",
+    duration: "Reference",
+    difficulty: "Beginner",
+    description: [
+      "→ Drink enough water",
+      "→ Wear comfortable clothes",
+      "→ Stop if you feel pain or dizziness",
+      "→ Be consistent, not perfect 😊",
+    ],
+  },
+];
+
 // ─── Static Pregnancy Workout Entries ────────────────────────────────────────
 
 const STATIC_PREGNANCY_WORKOUTS = [
@@ -329,9 +465,10 @@ export function WorkoutsPage() {
 
   const notes: ThozhiWorkoutNote[] = workoutNotes ?? [];
 
-  // For pregnancy and period_relief tabs, use static entries; for general, use backend entries
+  // For pregnancy, period_relief, and general tabs, use static entries
   const isPregnancyTab = activeTab === "pregnancy";
   const isPeriodTab = activeTab === "period_relief";
+  const isGeneralTab = activeTab === "general";
 
   useEffect(() => {
     if (isActive) {
@@ -362,7 +499,7 @@ export function WorkoutsPage() {
   };
 
   const hasBackendContent = entries && entries.length > 0;
-  const hasStaticContent = isPregnancyTab || isPeriodTab;
+  const hasStaticContent = isPregnancyTab || isPeriodTab || isGeneralTab;
   const hasContent = hasStaticContent || hasBackendContent || notes.length > 0;
 
   return (
@@ -458,8 +595,20 @@ export function WorkoutsPage() {
         </div>
       )}
 
+      {/* General section heading */}
+      {isGeneralTab && (
+        <div className="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3">
+          <h3 className="font-semibold text-sm text-emerald-900 text-center">
+            🌼 SIMPLE DAILY WORKOUT PLAN (20–30 MINUTES)
+          </h3>
+          <p className="text-xs text-emerald-700 text-center mt-0.5">
+            Easy everyday exercises for all women
+          </p>
+        </div>
+      )}
+
       {/* Workout Cards */}
-      {!isPregnancyTab && !isPeriodTab && isLoading ? (
+      {!isPregnancyTab && !isPeriodTab && !isGeneralTab && isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-28 w-full rounded-2xl" />
@@ -571,9 +720,62 @@ export function WorkoutsPage() {
               </Card>
             ))}
 
-          {/* Backend workout entries (general, or any future seeded entries) */}
+          {/* Static general workout entries */}
+          {isGeneralTab &&
+            STATIC_GENERAL_WORKOUTS.map((workout, index) => (
+              <Card
+                key={workout.id}
+                className="border-border shadow-sm hover:shadow-md transition-all"
+                data-ocid={`workouts.entry.item.${index + 1}`}
+              >
+                <CardHeader className="pb-2 pt-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-sm font-semibold text-foreground leading-tight flex-1">
+                      {workout.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <Badge
+                        className={`text-[10px] px-2 py-0.5 ${getDifficultyColor(workout.difficulty)}`}
+                        variant="outline"
+                      >
+                        <Zap className="h-2.5 w-2.5 mr-0.5 inline" />
+                        {workout.difficulty}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-4 pt-0 space-y-2">
+                  <div className="space-y-0.5">
+                    {workout.description.map((line) =>
+                      line === "" ? (
+                        <div
+                          key={`${workout.id}-spacer-${line}`}
+                          className="h-1"
+                        />
+                      ) : (
+                        <p
+                          key={`${workout.id}-line-${line}`}
+                          className="text-xs text-muted-foreground leading-relaxed"
+                        >
+                          {line}
+                        </p>
+                      ),
+                    )}
+                  </div>
+                  {workout.duration !== "Reference" && (
+                    <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                      <Clock className="h-3 w-3" />
+                      {workout.duration}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+
+          {/* Backend workout entries (any future seeded entries) */}
           {!isPregnancyTab &&
             !isPeriodTab &&
+            !isGeneralTab &&
             entries?.map((entry, index) => (
               <Card
                 key={entry.id.toString()}
